@@ -2,10 +2,7 @@
 
 #include "artemis/core/application_listener.hpp"
 #include "artemis/core/window.hpp"
-#include <functional>
 #include <memory>
-
-#define UPDATE_CALLBACK_SIGNATURE void(float)
 
 namespace artemis {
 class Application {

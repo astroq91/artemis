@@ -10,6 +10,7 @@ set(SRC
 set(SOURCES
   "${SRC}/core/application.cpp"
   "${SRC}/core/window.cpp"
+  "${SRC}/utils/logger.cpp"
   "${SRC}/core/log.cpp"
 )
 
