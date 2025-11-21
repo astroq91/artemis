@@ -5,6 +5,9 @@ namespace artemis {
 class Window {
   public:
     Window();
+    ~Window();
+
+    bool should_close();
 
   private:
     GLFWwindow* window_;
