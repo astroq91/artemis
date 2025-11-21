@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(SOURCES
-  main.cpp
+  src/main.cpp
 )
 
 add_executable(sandbox
@@ -10,5 +10,5 @@ add_executable(sandbox
 
 target_link_libraries(sandbox
   PRIVATE
-    engine
+    artemis 
 )
