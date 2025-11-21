@@ -1,6 +1,7 @@
 #pragma once
 
 #include "artemis/core/application_listener.hpp"
+#include "artemis/core/window.hpp"
 #include <functional>
 #include <memory>
 
@@ -25,5 +26,6 @@ class Application {
   private:
     bool running_ = true;
     std::unique_ptr<ApplicationListener> listener_;
+    std::unique_ptr<Window> window_;
 };
 }; // namespace artemis

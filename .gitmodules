@@ -1,3 +1,6 @@
 [submodule "artemis/vendor/glfw"]
 	path = artemis/vendor/glfw
 	url = git@github.com:glfw/glfw.git
+[submodule "artemis/vendor/spdlog"]
+	path = artemis/vendor/spdlog
+	url = git@github.com:gabime/spdlog.git

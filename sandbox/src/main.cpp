@@ -1,10 +1,11 @@
 #include "artemis/core/application.hpp"
 #include "sandbox.hpp"
+#include "log.hpp"
 #include <memory>
 
-using namespace artemis;
 int main() {
-    Application app;
+    init_logger();
+    artemis::Application app;
     auto listener = std::make_unique<Sandbox>();
     app.set_listener(std::move(listener)).run();
 }
