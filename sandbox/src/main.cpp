@@ -1,2 +1,6 @@
 #include "artemis/core/application.hpp"
-int main() { Artemis::Application app; }
+void onUpdate(float) {}
+int main() {
+    Artemis::Application app;
+    app.setUpdateCallback(onUpdate).run();
+}

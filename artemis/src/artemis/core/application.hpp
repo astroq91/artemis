@@ -9,6 +9,10 @@ class Application {
   public:
     Application() = default;
     /**
+     * Run the application.
+     */
+    void run();
+    /**
      * Sets the main update function callback.
      */
     Application& setUpdateCallback(
@@ -18,6 +22,7 @@ class Application {
     }
 
   private:
+    bool m_running = true;
     std::function<void(float)> m_update_callback;
 };
 }; // namespace Artemis
