@@ -1,8 +1,9 @@
 #include "application.hpp"
 
-namespace Artemis {
+namespace artemis {
 void Application::run() {
-    while (m_running) {
+    while (running_) {
+        listener_->on_update(1.0f);
     }
 }
-} // namespace Artemis
+} // namespace artemis

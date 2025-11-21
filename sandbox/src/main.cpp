@@ -1,6 +1,10 @@
 #include "artemis/core/application.hpp"
-void onUpdate(float) {}
+#include "sandbox.hpp"
+#include <memory>
+
+using namespace artemis;
 int main() {
-    Artemis::Application app;
-    app.setUpdateCallback(onUpdate).run();
+    Application app;
+    auto listener = std::make_unique<Sandbox>();
+    app.set_listener(std::move(listener)).run();
 }

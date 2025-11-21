@@ -1,10 +1,12 @@
 #pragma once
 
+#include "artemis/core/application_listener.hpp"
 #include <functional>
+#include <memory>
 
 #define UPDATE_CALLBACK_SIGNATURE void(float)
 
-namespace Artemis {
+namespace artemis {
 class Application {
   public:
     Application() = default;
@@ -15,14 +17,13 @@ class Application {
     /**
      * Sets the main update function callback.
      */
-    Application& setUpdateCallback(
-        const std::function<UPDATE_CALLBACK_SIGNATURE>& callback) {
-        m_update_callback = callback;
+    Application& set_listener(std::unique_ptr<ApplicationListener>&& listener) {
+        listener_ = std::move(listener);
         return *this;
     }
 
   private:
-    bool m_running = true;
-    std::function<void(float)> m_update_callback;
+    bool running_ = true;
+    std::unique_ptr<ApplicationListener> listener_;
 };
-}; // namespace Artemis
+}; // namespace artemis
