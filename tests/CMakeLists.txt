@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
+project(tests)
 
 add_executable(artemis_tests
-  test_event_bus.cpp
+  artemis/test_event_bus.cpp
 )
 
 target_link_libraries(artemis_tests
   PRIVATE
+    artemis
     GTest::gtest_main
 )
 

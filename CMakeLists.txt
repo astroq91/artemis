@@ -12,6 +12,6 @@ option(BUILD_TESTS "Build the test suite" OFF)
 
 if(BUILD_TESTS)
 enable_testing()
-add_subdirectory("vendor/googletest")
-add_subdirectory("tests/artemis")
+add_subdirectory(vendor/googletest)
+  add_subdirectory(tests)
 endif()

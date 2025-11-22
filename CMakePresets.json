@@ -21,10 +21,10 @@
       }
     },
     {
-      "name": "test-artemis",
+      "name": "artemis-tests",
       "displayName": "Test Artemis",
       "generator": "Ninja",
-      "binaryDir": "build/tests",
+      "binaryDir": "build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTS": "ON"
@@ -43,8 +43,8 @@
       "targets": ["sandbox"]
     },
     { 
-      "name": "test-artemis",
-      "configurePreset": "test-artemis",
+      "name": "artemis-tests",
+      "configurePreset": "artemis-tests",
       "targets": ["artemis_tests"]
     }
   ]

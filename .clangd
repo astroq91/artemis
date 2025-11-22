@@ -10,4 +10,4 @@ If:
   PathMatch: [tests/.*]
 
 CompileFlags:
-  CompilationDatabase: build/tests
+  CompilationDatabase: build
