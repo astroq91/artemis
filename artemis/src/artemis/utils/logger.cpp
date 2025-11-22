@@ -13,5 +13,4 @@ void Logger::init(const std::string& name) {
         name, spdlog::sinks_init_list{console_sink});
     m_logger->set_level(spdlog::level::trace);
 }
-
 } // namespace artemis::utils
