@@ -12,6 +12,7 @@ set(SOURCES
   "${SRC}/core/window.cpp"
   "${SRC}/utils/logger.cpp"
   "${SRC}/core/log.cpp"
+  "${SRC}/events/event_bus.cpp"
 )
 
 add_library(artemis
