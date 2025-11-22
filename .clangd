@@ -1,2 +1,13 @@
+If:
+  PathMatch: [artemis/.*, sandbox/.*]
+
 CompileFlags:
   CompilationDatabase: build/debug
+
+---
+
+If:
+  PathMatch: [tests/.*]
+
+CompileFlags:
+  CompilationDatabase: build/tests

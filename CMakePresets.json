@@ -4,6 +4,7 @@
   "configurePresets": [
     {
       "name": "debug",
+      "displayName": "Debug",
       "generator": "Ninja",
       "binaryDir": "build/debug",
       "cacheVariables": {
@@ -18,6 +19,16 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "test-artemis",
+      "displayName": "Test Artemis",
+      "generator": "Ninja",
+      "binaryDir": "build/tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -30,6 +41,11 @@
       "name": "release",
       "configurePreset": "release",
       "targets": ["sandbox"]
+    },
+    { 
+      "name": "test-artemis",
+      "configurePreset": "test-artemis",
+      "targets": ["artemis_tests"]
     }
   ]
 }
