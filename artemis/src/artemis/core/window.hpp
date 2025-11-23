@@ -7,6 +7,7 @@ class Window {
     Window();
     ~Window();
 
+    void on_update();
     bool should_close();
 
   private:

@@ -8,7 +8,8 @@
       "generator": "Ninja",
       "binaryDir": "build/debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-DDEBUG=1"
       }
     },
     {

@@ -27,6 +27,11 @@ class Logger {
     void info(const fmt::format_string<Args...>& fmt, Args&&... args) {
         m_logger->info(fmt, std::forward<Args>(args)...);
     }
+    void warn(const std::string& msg) { m_logger->warn(msg); }
+    template <typename... Args>
+    void warn(const fmt::format_string<Args...>& fmt, Args&&... args) {
+        m_logger->warn(fmt, std::forward<Args>(args)...);
+    }
     void error(const std::string& msg) { m_logger->error(msg); }
     template <typename... Args>
     void error(const fmt::format_string<Args...>& fmt, Args&&... args) {

@@ -26,6 +26,8 @@ Window::~Window() {
     glfwTerminate();
 }
 
+void Window::on_update() { glfwPollEvents(); }
+
 bool Window::should_close() { return glfwWindowShouldClose(window_); }
 
 } // namespace artemis

@@ -8,7 +8,7 @@ sandbox:
 	cmake --build --preset debug 
 
 run: sandbox 
-	build/debug/sandbox
+	build/debug/sandbox/sandbox
 
 tests:
 	cmake --preset artemis-tests
