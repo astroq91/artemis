@@ -18,9 +18,12 @@ class VulkanUtils {
     static std::unique_ptr<vk::raii::Instance>
     create_instance(const std::unique_ptr<vk::raii::Context>& context);
 
-    static std::unique_ptr<vk::raii::Device>
-    create_device(const std::unique_ptr<vk::raii::Instance>& instance,
-                  const std::unique_ptr<vk::raii::SurfaceKHR>& surface);
+    static std::tuple<std::unique_ptr<vk::raii::Device>,
+                      std::unique_ptr<vk::raii::Queue>,
+                      std::unique_ptr<vk::raii::Queue>>
+    create_device_and_queues(
+        const std::unique_ptr<vk::raii::Instance>& instance,
+        const std::unique_ptr<vk::raii::SurfaceKHR>& surface);
 
     static std::unique_ptr<vk::raii::SurfaceKHR>
     create_surface(const std::unique_ptr<vk::raii::Instance>& instance,
@@ -45,5 +48,7 @@ class VulkanUtils {
     static std::unique_ptr<vk::raii::DebugUtilsMessengerEXT>
     create_debug_messenger(const std::unique_ptr<vk::raii::Instance>& instance,
                            vk::PFN_DebugUtilsMessengerCallbackEXT callback);
+
+    static vk::raii::Queue create_queue();
 };
 }; // namespace artemis

@@ -65,9 +65,13 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
         log->critical("(vk) Failed to create surface");
     }
 
-    log->debug("(vk) Creating device.");
+    log->debug("(vk) Creating device and queues.");
     try {
-        device = VulkanUtils::create_device(instance, surface);
+        auto&& [dev, graphics, present] =
+            VulkanUtils::create_device_and_queues(instance, surface);
+        device = std::move(dev);
+        graphics_queue = std::move(graphics);
+        present_queue = std::move(present);
     } catch (const vk::SystemError& err) {
         log->critical("(vk) Failed to create device.");
     }

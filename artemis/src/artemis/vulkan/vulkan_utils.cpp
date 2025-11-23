@@ -12,7 +12,15 @@
 #include <GLFW/glfw3.h>
 
 const std::vector<const char*> validation_layers = {
-    "VK_LAYER_KHRONOS_validation"};
+    "VK_LAYER_KHRONOS_validation",
+};
+
+const std::vector<const char*> device_extensions = {
+    vk::KHRSwapchainExtensionName,
+    vk::KHRSpirv14ExtensionName,
+    vk::KHRSynchronization2ExtensionName,
+    vk::KHRCreateRenderpass2ExtensionName,
+};
 
 #ifdef DEBUG
 const bool enable_validation_layers = true;
@@ -47,25 +55,42 @@ std::unique_ptr<vk::raii::Instance> VulkanUtils::create_instance(
     return std::make_unique<vk::raii::Instance>(*context, create_info);
 }
 
-std::unique_ptr<vk::raii::Device> VulkanUtils::create_device(
+std::tuple<std::unique_ptr<vk::raii::Device>, std::unique_ptr<vk::raii::Queue>,
+           std::unique_ptr<vk::raii::Queue>>
+VulkanUtils::create_device_and_queues(
     const std::unique_ptr<vk::raii::Instance>& instance,
     const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
     auto physical_device = choose_physical_device(instance, surface);
     auto indices = find_queue_families(physical_device, surface);
 
+    auto features = physical_device.getFeatures2();
+    vk::PhysicalDeviceVulkan13Features vulkan_13_features;
+    vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+        extended_dynamic_state_features;
+    vulkan_13_features.dynamicRendering = vk::True;
+    vulkan_13_features.pNext = &extended_dynamic_state_features;
+    features.pNext = &vulkan_13_features;
+
     float queue_priority = 1.0f;
     vk::DeviceQueueCreateInfo queue_create_info({}, indices.graphics.value(), 1,
                                                 &queue_priority);
-    vk::PhysicalDeviceFeatures device_features;
-    vk::DeviceCreateInfo create_info({}, 1, &queue_create_info, 0, {}, 0, {},
-                                     &device_features);
+    vk::DeviceCreateInfo create_info{};
+    create_info.pNext = &features;
+    create_info.queueCreateInfoCount = 1;
+    create_info.pQueueCreateInfos = &queue_create_info;
+
     if (enable_validation_layers) {
         create_info.enabledLayerCount =
             static_cast<uint32_t>(validation_layers.size());
         create_info.ppEnabledLayerNames = validation_layers.data();
     }
 
-    return std::make_unique<vk::raii::Device>(physical_device, create_info);
+    auto device = vk::raii::Device(physical_device, create_info);
+    auto graphics_queue = vk::raii::Queue(device, indices.graphics.value(), 0);
+    auto present_queue = vk::raii::Queue(device, indices.present.value(), 0);
+    return {std::make_unique<vk::raii::Device>(std::move(device)),
+            std::make_unique<vk::raii::Queue>(std::move(graphics_queue)),
+            std::make_unique<vk::raii::Queue>(std::move(present_queue))};
 }
 
 std::unique_ptr<vk::raii::SurfaceKHR>
