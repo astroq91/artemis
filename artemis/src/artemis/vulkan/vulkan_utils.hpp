@@ -49,6 +49,13 @@ class VulkanUtils {
     create_debug_messenger(const std::unique_ptr<vk::raii::Instance>& instance,
                            vk::PFN_DebugUtilsMessengerCallbackEXT callback);
 
-    static vk::raii::Queue create_queue();
+    static vk::SurfaceFormatKHR choose_swap_surface_format(
+        const std::vector<vk::SurfaceFormatKHR>& available_formats);
+    static vk::PresentModeKHR choose_present_mode(
+        const std::vector<vk::PresentModeKHR>& available_present_modes);
+
+    static vk::Extent2D
+    choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities,
+                       GLFWwindow* window);
 };
 }; // namespace artemis

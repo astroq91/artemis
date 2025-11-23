@@ -15,6 +15,7 @@ set(SOURCES
   "${SRC}/utils/logger.cpp"
   "${SRC}/vulkan/vulkan_utils.cpp"
   "${SRC}/vulkan/vulkan_context.cpp"
+  "${SRC}/vulkan/swap_chain.cpp"
   "${SRC}/core/log.cpp"
   "${SRC}/events/event_bus.cpp"
 )

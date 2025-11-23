@@ -1,5 +1,6 @@
 #include "vulkan_utils.hpp"
 #include <fcntl.h>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -78,6 +79,8 @@ VulkanUtils::create_device_and_queues(
     create_info.pNext = &features;
     create_info.queueCreateInfoCount = 1;
     create_info.pQueueCreateInfos = &queue_create_info;
+    create_info.enabledExtensionCount = device_extensions.size();
+    create_info.ppEnabledExtensionNames = device_extensions.data();
 
     if (enable_validation_layers) {
         create_info.enabledLayerCount =
@@ -124,6 +127,10 @@ vk::raii::PhysicalDevice VulkanUtils::choose_physical_device(
 bool VulkanUtils::is_device_suitable(
     const vk::raii::PhysicalDevice& device,
     const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
+    auto surface_capabilites = device.getSurfaceCapabilitiesKHR(*surface);
+    auto available_formats = device.getSurfaceFormatsKHR(*surface);
+    auto available_present_modes = device.getSurfacePresentModesKHR(*surface);
+
     auto indices = find_queue_families(device, surface);
     return indices.is_complete();
 }
@@ -208,5 +215,44 @@ VulkanUtils::create_debug_messenger(
 
     return std::make_unique<vk::raii::DebugUtilsMessengerEXT>(
         instance->createDebugUtilsMessengerEXT(create_info));
+}
+
+vk::SurfaceFormatKHR VulkanUtils::choose_swap_surface_format(
+    const std::vector<vk::SurfaceFormatKHR>& available_formats) {
+    for (const auto& available_format : available_formats) {
+        if (available_format.format == vk::Format::eB8G8R8A8Srgb &&
+            available_format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
+            return available_format;
+        }
+    }
+    return available_formats[0];
+}
+vk::PresentModeKHR VulkanUtils::choose_present_mode(
+    const std::vector<vk::PresentModeKHR>& available_present_modes) {
+    for (const auto& available_present_mode : available_present_modes) {
+        if (available_present_mode == vk::PresentModeKHR::eMailbox) {
+            return available_present_mode;
+        }
+    }
+    return vk::PresentModeKHR::eFifo;
+}
+
+vk::Extent2D
+VulkanUtils::choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities,
+                                GLFWwindow* window) {
+    if (capabilities.currentExtent.width !=
+        std::numeric_limits<uint32_t>::max()) {
+        return capabilities.currentExtent;
+    }
+
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+
+    return {
+        std::clamp<uint32_t>(width, capabilities.minImageExtent.width,
+                             capabilities.maxImageExtent.width),
+        std::clamp<uint32_t>(height, capabilities.minImageExtent.height,
+                             capabilities.maxImageExtent.height),
+    };
 }
 } // namespace artemis

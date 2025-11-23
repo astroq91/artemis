@@ -4,6 +4,7 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_handles.hpp>
 
 namespace vk {
 namespace detail {
@@ -20,7 +21,10 @@ debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
                void* pUserData) {
 
-    if (messageSeverity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo) {
+    if (messageSeverity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose) {
+        Log::get()->info("(vk): {}", pCallbackData->pMessage);
+    } else if (messageSeverity &
+               vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo) {
         Log::get()->info("(vk): {}", pCallbackData->pMessage);
     } else if (messageSeverity &
                vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning) {
@@ -65,6 +69,14 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
         log->critical("(vk) Failed to create surface");
     }
 
+    log->debug("(vk) Choosing physical device.");
+    try {
+        physical_device = std::make_unique<vk::raii::PhysicalDevice>(
+            VulkanUtils::choose_physical_device(instance, surface));
+    } catch (const std::exception& err) {
+        log->critical("(vk) Failed to choose physical device.");
+    }
+
     log->debug("(vk) Creating device and queues.");
     try {
         auto&& [dev, graphics, present] =
@@ -75,5 +87,9 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
     } catch (const vk::SystemError& err) {
         log->critical("(vk) Failed to create device.");
     }
+
+    // Cache additional information
+    queue_family_indices =
+        VulkanUtils::find_queue_families(*physical_device, surface);
 }
 } // namespace artemis

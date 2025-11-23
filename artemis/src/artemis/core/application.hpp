@@ -30,6 +30,6 @@ class Application {
     std::unique_ptr<ApplicationListener> listener_;
     std::unique_ptr<Window> window_;
     std::shared_ptr<EventBus> event_bus_;
-    std::shared_ptr<VulkanContext> vulkan_context_;
+    VulkanContext vulkan_context_;
 };
 }; // namespace artemis

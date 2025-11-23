@@ -1,6 +1,7 @@
 #include "application.hpp"
 #include "artemis/core/log.hpp"
 #include "artemis/events/window_event.hpp"
+#include "artemis/vulkan/swap_chain.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
 #include <memory>
 
@@ -10,15 +11,16 @@ void Application::run() {
     Log::init();
     event_bus_ = std::make_shared<EventBus>();
     window_ = std::make_unique<Window>();
-    vulkan_context_ = std::make_shared<VulkanContext>();
-    vulkan_context_->init(window_);
+    vulkan_context_.init(window_);
 
     listener_init();
 
-    WindowEvent test;
-    test.some_data = "testing";
-    event_bus_->publish(test);
-    event_bus_->flush();
+    try {
+
+        SwapChain test(vulkan_context_, window_->get_handle());
+    } catch (const std::exception& e) {
+        Log::get()->error(e.what());
+    }
 
     while (running_) {
         if (window_->should_close()) {
