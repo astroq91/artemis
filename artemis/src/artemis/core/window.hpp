@@ -10,6 +10,8 @@ class Window {
     void on_update();
     bool should_close();
 
+    GLFWwindow* get_handle() { return window_; }
+
   private:
     GLFWwindow* window_;
 };

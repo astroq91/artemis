@@ -14,6 +14,8 @@ Window::Window() {
     }
     glfwSetErrorCallback(error_callback);
 
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     window_ = glfwCreateWindow(640, 480, "Title", NULL, NULL);
     if (!window_) {
         logger->critical("glfwCreateWindow()");

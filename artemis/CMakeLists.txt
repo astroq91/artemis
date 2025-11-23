@@ -34,3 +34,8 @@ target_link_libraries(artemis
     spdlog
     glm
 )
+
+target_compile_definitions(artemis
+  PRIVATE
+    GLFW_INCLUDE_VULKAN
+)

@@ -1,14 +1,15 @@
 #include "vulkan_utils.hpp"
-#include "GLFW/glfw3.h"
-#include "artemis/core/log.hpp"
 #include <fcntl.h>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_funcs.hpp>
 #include <vulkan/vulkan_handles.hpp>
+#include <vulkan/vulkan_raii.hpp>
 #include <vulkan/vulkan_structs.hpp>
+#include <GLFW/glfw3.h>
 
 const std::vector<const char*> validation_layers = {
     "VK_LAYER_KHRONOS_validation"};
@@ -21,26 +22,10 @@ const bool enable_validation_layers = false;
 
 namespace artemis {
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL
-debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-               VkDebugUtilsMessageTypeFlagsEXT messageType,
-               const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-               void* pUserData) {
-
-    if (messageType & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-        Log::get()->info("(vk): {}", pCallbackData->pMessage);
-    } else if (messageType & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        Log::get()->warn("(vk): {}", pCallbackData->pMessage);
-    } else if (messageType & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-        Log::get()->error("(vk): {}", pCallbackData->pMessage);
-    }
-
-    return VK_FALSE;
-}
 std::unique_ptr<vk::raii::Instance> VulkanUtils::create_instance(
     const std::unique_ptr<vk::raii::Context>& context) {
     if (enable_validation_layers && !check_validation_layer_support(context)) {
-        Log::get()->critical(
+        throw std::runtime_error(
             "(vk) Validation layers enabled but not available.");
     }
     vk::ApplicationInfo app_info("Artemis", VK_MAKE_VERSION(1, 0, 0), "Artemis",
@@ -63,9 +48,10 @@ std::unique_ptr<vk::raii::Instance> VulkanUtils::create_instance(
 }
 
 std::unique_ptr<vk::raii::Device> VulkanUtils::create_device(
-    const std::unique_ptr<vk::raii::Instance>& instance) {
-    auto physical_device = choose_physical_device(instance);
-    auto indices = find_queue_families(physical_device);
+    const std::unique_ptr<vk::raii::Instance>& instance,
+    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
+    auto physical_device = choose_physical_device(instance, surface);
+    auto indices = find_queue_families(physical_device, surface);
 
     float queue_priority = 1.0f;
     vk::DeviceQueueCreateInfo queue_create_info({}, indices.graphics.value(), 1,
@@ -82,27 +68,43 @@ std::unique_ptr<vk::raii::Device> VulkanUtils::create_device(
     return std::make_unique<vk::raii::Device>(physical_device, create_info);
 }
 
+std::unique_ptr<vk::raii::SurfaceKHR>
+VulkanUtils::create_surface(const std::unique_ptr<vk::raii::Instance>& instance,
+                            GLFWwindow* window) {
+    VkSurfaceKHR surface;
+    if (glfwCreateWindowSurface(**instance, window, nullptr, &surface) !=
+        VK_SUCCESS) {
+        throw std::runtime_error("(vk) Failed to create window surface.");
+    }
+    return std::make_unique<vk::raii::SurfaceKHR>(*instance, surface);
+}
+
 vk::raii::PhysicalDevice VulkanUtils::choose_physical_device(
-    const std::unique_ptr<vk::raii::Instance>& instance) {
+    const std::unique_ptr<vk::raii::Instance>& instance,
+    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
     vk::raii::PhysicalDevices devices(*instance);
     int best_device = -1;
     for (int i = 0; i < devices.size(); ++i) {
-        if (is_device_suitable(devices[i])) {
+        if (is_device_suitable(devices[i], surface)) {
             best_device = i;
         }
     }
     if (best_device == -1) {
-        Log::get()->critical("(vk) Failed to find a suitable physical device");
+        throw std::runtime_error(
+            "(vk) Failed to find a suitable physical device");
     }
     return vk::raii::PhysicalDevice(std::move(devices[best_device]));
 }
 
-bool VulkanUtils::is_device_suitable(const vk::raii::PhysicalDevice& device) {
-    auto indices = find_queue_families(device);
+bool VulkanUtils::is_device_suitable(
+    const vk::raii::PhysicalDevice& device,
+    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
+    auto indices = find_queue_families(device, surface);
     return indices.is_complete();
 }
-QueueFamilyIndices
-VulkanUtils::find_queue_families(const vk::raii::PhysicalDevice& device) {
+QueueFamilyIndices VulkanUtils::find_queue_families(
+    const vk::raii::PhysicalDevice& device,
+    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
     QueueFamilyIndices indices;
     auto queue_families = device.getQueueFamilyProperties();
 
@@ -110,6 +112,10 @@ VulkanUtils::find_queue_families(const vk::raii::PhysicalDevice& device) {
     for (const auto& family : queue_families) {
         if (family.queueFlags & vk::QueueFlagBits::eGraphics) {
             indices.graphics = i;
+        }
+
+        if (device.getSurfaceSupportKHR(i, *surface)) {
+            indices.present = i;
         }
 
         if (indices.is_complete()) {
@@ -134,7 +140,8 @@ bool VulkanUtils::check_validation_layer_support(
             }
         }
         if (!layer_found) {
-            Log::get()->error("(vk) Validation layer support not found.");
+            throw std::runtime_error(
+                "(vk) Validation layer support not found.");
             return false;
         }
     }
@@ -159,7 +166,8 @@ std::vector<const char*> VulkanUtils::get_required_extensions() {
 
 std::unique_ptr<vk::raii::DebugUtilsMessengerEXT>
 VulkanUtils::create_debug_messenger(
-    const std::unique_ptr<vk::raii::Instance>& instance) {
+    const std::unique_ptr<vk::raii::Instance>& instance,
+    vk::PFN_DebugUtilsMessengerCallbackEXT callback) {
     if (!enable_validation_layers) {
         return nullptr;
     }
@@ -171,7 +179,7 @@ VulkanUtils::create_debug_messenger(
         SeverityFlags::eVerbose | SeverityFlags::eError |
             SeverityFlags::eWarning,
         TypeFlags::eGeneral | TypeFlags::ePerformance | TypeFlags::eValidation,
-        debug_callback);
+        callback);
 
     return std::make_unique<vk::raii::DebugUtilsMessengerEXT>(
         instance->createDebugUtilsMessengerEXT(create_info));

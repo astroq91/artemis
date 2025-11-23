@@ -11,7 +11,7 @@ void Application::run() {
     event_bus_ = std::make_shared<EventBus>();
     window_ = std::make_unique<Window>();
     vulkan_context_ = std::make_shared<VulkanContext>();
-    vulkan_context_->init();
+    vulkan_context_->init(window_);
 
     listener_init();
 
