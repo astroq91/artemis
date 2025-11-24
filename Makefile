@@ -17,7 +17,6 @@ tests:
 run-tests: tests
 	build/tests/artemis_tests
 
-
 clean:
 	rm -rf build
 

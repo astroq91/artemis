@@ -20,6 +20,10 @@ set(SOURCES
   "${SRC}/events/event_bus.cpp"
 )
 
+set(SHADERS_DIR
+  "${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders"
+)
+
 add_library(artemis
   "${SOURCES}"
 )
@@ -40,3 +44,10 @@ target_compile_definitions(artemis
   PRIVATE
     GLFW_INCLUDE_VULKAN
 )
+
+target_add_slang_shaders(artemis_shaders 
+  SOURCES
+    "${SHADERS_DIR}/triangle.slang"
+)
+
+add_dependencies(artemis artemis_shaders)
