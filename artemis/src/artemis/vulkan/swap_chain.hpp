@@ -8,6 +8,8 @@ class SwapChain {
     SwapChain() = default;
     SwapChain(const VulkanContext& context, GLFWwindow* window);
 
+    vk::Format get_image_format() const { return image_format_; }
+
   private:
     vk::raii::SwapchainKHR swap_chain_{nullptr};
     vk::SurfaceFormatKHR surface_format_;

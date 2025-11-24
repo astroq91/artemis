@@ -1,7 +1,7 @@
 #pragma once
 
 #include <type_traits>
-namespace artemis::utils {
+namespace artemis {
 template <typename T> constexpr bool is_flag_enum = false;
 
 template <typename E>
@@ -35,4 +35,4 @@ template <flag_enum E> constexpr E& operator&=(E& lhs, E rhs) {
     return lhs = lhs & rhs;
 }
 
-} // namespace artemis::utils
+} // namespace artemis

@@ -46,6 +46,7 @@ target_link_libraries(artemis
 target_compile_definitions(artemis
   PRIVATE
     GLFW_INCLUDE_VULKAN
+    RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources"
 )
 
 target_add_slang_shaders(artemis_shaders 

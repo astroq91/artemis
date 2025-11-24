@@ -12,10 +12,6 @@ struct ResourceHandle {
     uint32_t version;
 };
 
-struct ResourceHandleHasher {
-    size_t operator()(const ResourceHandle& p) const { return p.index; }
-};
-
 class ResourceLibrary {
   public:
     ResourceHandle insert_shader(std::unique_ptr<Shader>&& resource) {

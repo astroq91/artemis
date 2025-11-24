@@ -1,13 +1,14 @@
 #pragma once
 
-#include "artemis/assets/resource_library.hpp"
 #include "artemis/vulkan/shader.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
+#include <vulkan/vulkan_raii.hpp>
 namespace artemis {
 
 struct PipelineInfo {
-    Shader* vertex_shader;
-    Shader* fragment_shader;
+    const Shader* vertex_shader;
+    const Shader* fragment_shader;
+    vk::Format swap_chain_image_format;
 };
 
 class Pipeline {
@@ -15,5 +16,9 @@ class Pipeline {
     Pipeline() = default;
 
     Pipeline(const VulkanContext& context, const PipelineInfo& info);
+
+  private:
+    vk::raii::Pipeline pipeline_{nullptr};
+    vk::raii::PipelineLayout layout_{nullptr};
 };
 } // namespace artemis

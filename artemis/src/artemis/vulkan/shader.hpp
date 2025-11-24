@@ -12,7 +12,7 @@ enum class ShaderType : uint32_t {
     Fragment = 1 << 1,
     // etc.
 };
-template <> inline constexpr bool utils::is_flag_enum<ShaderType> = true;
+template <> inline constexpr bool is_flag_enum<ShaderType> = true;
 
 class Shader {
   public:
