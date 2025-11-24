@@ -12,12 +12,15 @@ set(SRC
 set(SOURCES
   "${SRC}/core/application.cpp"
   "${SRC}/core/window.cpp"
-  "${SRC}/utils/logger.cpp"
+  "${SRC}/core/log.cpp"
   "${SRC}/vulkan/vulkan_utils.cpp"
   "${SRC}/vulkan/vulkan_context.cpp"
   "${SRC}/vulkan/swap_chain.cpp"
-  "${SRC}/core/log.cpp"
+  "${SRC}/vulkan/shader.cpp"
+  "${SRC}/vulkan/pipeline.cpp"
   "${SRC}/events/event_bus.cpp"
+  "${SRC}/utils/logger.cpp"
+  "${SRC}/utils/io.cpp"
 )
 
 set(SHADERS_DIR
