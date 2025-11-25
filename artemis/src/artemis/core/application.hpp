@@ -1,5 +1,6 @@
 #pragma once
 
+#include "artemis/core/application_context.hpp"
 #include "artemis/core/application_listener.hpp"
 #include "artemis/core/window.hpp"
 #include "artemis/events/event_bus.hpp"
@@ -28,8 +29,6 @@ class Application {
   private:
     bool running_ = true;
     std::unique_ptr<ApplicationListener> listener_;
-    std::unique_ptr<Window> window_;
-    std::shared_ptr<EventBus> event_bus_;
-    VulkanContext vulkan_context_;
+    ApplicationContext context_;
 };
 }; // namespace artemis
