@@ -6,8 +6,17 @@ namespace artemis {
 class SwapChain {
   public:
     SwapChain() = default;
+    /**
+     * Creates a swap chain.
+     * @param context The vulkan context.
+     * @param window The window handle.
+     */
     SwapChain(const VulkanContext& context, GLFWwindow* window);
 
+    /**
+     * Get the image format of the swap chain images.
+     * @return The format
+     */
     vk::Format get_image_format() const { return image_format_; }
 
   private:

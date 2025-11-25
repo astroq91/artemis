@@ -5,6 +5,9 @@
 #include <vulkan/vulkan_raii.hpp>
 namespace artemis {
 
+/**
+ * Specification for a pipeline.
+ */
 struct PipelineInfo {
     const Shader* vertex_shader;
     const Shader* fragment_shader;
