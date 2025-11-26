@@ -91,5 +91,15 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
     // Cache additional information
     queue_family_indices =
         VulkanUtils::find_queue_families(*physical_device, surface);
+
+    log->debug("(vk) Creating command pool.");
+    try {
+        command_pool = std::make_unique<vk::raii::CommandPool>(
+            *device, vk::CommandPoolCreateInfo(
+                         vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                         queue_family_indices.graphics.value()));
+    } catch (const vk::SystemError& err) {
+        log->critical("(vk) Failed to create main command pool.");
+    }
 }
 } // namespace artemis

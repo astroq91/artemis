@@ -13,6 +13,15 @@ struct QueueFamilyIndices {
     bool is_complete() { return graphics.has_value() && present.has_value(); }
 };
 
+struct TransitionImageInfo {
+    vk::ImageLayout oldLayout;
+    vk::ImageLayout newLayout;
+    vk::AccessFlags2 srcAccessMask;
+    vk::AccessFlags2 dstAccessMask;
+    vk::PipelineStageFlags2 srcStageMask;
+    vk::PipelineStageFlags2 dstStageMask;
+};
+
 class VulkanUtils {
   public:
     static std::unique_ptr<vk::raii::Instance>
@@ -57,5 +66,9 @@ class VulkanUtils {
     static vk::Extent2D
     choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities,
                        GLFWwindow* window);
+
+    static void transition_image(vk::raii::Image* image,
+                                 vk::raii::CommandBuffer* command_buffer,
+                                 const TransitionImageInfo& info);
 };
 }; // namespace artemis

@@ -15,6 +15,7 @@ struct VulkanContext {
     std::unique_ptr<vk::raii::SurfaceKHR> surface;
     std::unique_ptr<vk::raii::Queue> graphics_queue;
     std::unique_ptr<vk::raii::Queue> present_queue;
+    std::unique_ptr<vk::raii::CommandPool> command_pool;
     std::unique_ptr<vk::raii::DebugUtilsMessengerEXT> debug_messenger;
     QueueFamilyIndices queue_family_indices;
 };

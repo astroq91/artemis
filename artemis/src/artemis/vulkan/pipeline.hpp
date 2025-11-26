@@ -20,6 +20,8 @@ class Pipeline {
 
     Pipeline(const VulkanContext& context, const PipelineInfo& info);
 
+    const vk::raii::Pipeline& get_vk_pipeline() const { return pipeline_; }
+
   private:
     vk::raii::Pipeline pipeline_{nullptr};
     vk::raii::PipelineLayout layout_{nullptr};

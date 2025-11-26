@@ -40,7 +40,9 @@ class Shader {
      * Get the internal shader module handle.
      * @return The handle.
      */
-    const vk::raii::ShaderModule& get_module() const { return module_; }
+    const vk::raii::ShaderModule& get_vk_shader_module() const {
+        return module_;
+    }
 
   private:
     vk::raii::ShaderModule module_{nullptr};

@@ -256,4 +256,17 @@ VulkanUtils::choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities,
                              capabilities.maxImageExtent.height),
     };
 }
+
+void VulkanUtils::transition_image(vk::raii::Image* image,
+                                   vk::raii::CommandBuffer* command_buffer,
+                                   const TransitionImageInfo& info) {
+    vk::ImageMemoryBarrier2 barrier(
+        info.srcStageMask, info.srcAccessMask, info.dstStageMask,
+        info.dstAccessMask, info.oldLayout, info.newLayout,
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, *image,
+        vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+
+    vk::DependencyInfo dependency_info({}, 0, {}, 0, {}, 1, &barrier);
+    command_buffer->pipelineBarrier2(dependency_info);
+}
 } // namespace artemis
