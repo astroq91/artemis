@@ -2,7 +2,7 @@
 #include "GLFW/glfw3.h"
 #include <memory>
 #include <optional>
-#include <vulkan/vulkan_raii.hpp>
+#include <vulkan/vulkan.hpp>
 
 namespace artemis {
 
@@ -24,38 +24,34 @@ struct TransitionImageInfo {
 
 class VulkanUtils {
   public:
-    static std::unique_ptr<vk::raii::Instance>
-    create_instance(const std::unique_ptr<vk::raii::Context>& context);
+    static std::unique_ptr<vk::Instance> create_instance();
 
-    static std::tuple<std::unique_ptr<vk::raii::Device>,
-                      std::unique_ptr<vk::raii::Queue>,
-                      std::unique_ptr<vk::raii::Queue>>
-    create_device_and_queues(
-        const std::unique_ptr<vk::raii::Instance>& instance,
-        const std::unique_ptr<vk::raii::SurfaceKHR>& surface);
+    static std::tuple<std::unique_ptr<vk::Device>, std::unique_ptr<vk::Queue>,
+                      std::unique_ptr<vk::Queue>>
+    create_device_and_queues(const std::unique_ptr<vk::Instance>& instance,
+                             const std::unique_ptr<vk::SurfaceKHR>& surface);
 
-    static std::unique_ptr<vk::raii::SurfaceKHR>
-    create_surface(const std::unique_ptr<vk::raii::Instance>& instance,
+    static std::unique_ptr<vk::SurfaceKHR>
+    create_surface(const std::unique_ptr<vk::Instance>& instance,
                    GLFWwindow* window);
 
-    static vk::raii::PhysicalDevice choose_physical_device(
-        const std::unique_ptr<vk::raii::Instance>& instance,
-        const std::unique_ptr<vk::raii::SurfaceKHR>& surface);
+    static vk::PhysicalDevice
+    choose_physical_device(const std::unique_ptr<vk::Instance>& instance,
+                           const std::unique_ptr<vk::SurfaceKHR>& surface);
 
     static bool
-    is_device_suitable(const vk::raii::PhysicalDevice& device,
-                       const std::unique_ptr<vk::raii::SurfaceKHR>& surface);
+    is_device_suitable(const vk::PhysicalDevice& device,
+                       const std::unique_ptr<vk::SurfaceKHR>& surface);
     static QueueFamilyIndices
-    find_queue_families(const vk::raii::PhysicalDevice& device,
-                        const std::unique_ptr<vk::raii::SurfaceKHR>& surface);
+    find_queue_families(const vk::PhysicalDevice& device,
+                        const std::unique_ptr<vk::SurfaceKHR>& surface);
 
-    static bool check_validation_layer_support(
-        const std::unique_ptr<vk::raii::Context>& context);
+    static bool check_validation_layer_support();
 
     static std::vector<const char*> get_required_extensions();
 
-    static std::unique_ptr<vk::raii::DebugUtilsMessengerEXT>
-    create_debug_messenger(const std::unique_ptr<vk::raii::Instance>& instance,
+    static std::unique_ptr<vk::DebugUtilsMessengerEXT>
+    create_debug_messenger(const std::unique_ptr<vk::Instance>& instance,
                            vk::PFN_DebugUtilsMessengerCallbackEXT callback);
 
     static vk::SurfaceFormatKHR choose_swap_surface_format(
@@ -67,8 +63,8 @@ class VulkanUtils {
     choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities,
                        GLFWwindow* window);
 
-    static void transition_image(vk::raii::Image* image,
-                                 vk::raii::CommandBuffer* command_buffer,
+    static void transition_image(vk::Image* image,
+                                 vk::CommandBuffer* command_buffer,
                                  const TransitionImageInfo& info);
 };
 }; // namespace artemis

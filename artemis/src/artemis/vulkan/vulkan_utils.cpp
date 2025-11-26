@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -32,9 +33,8 @@ const bool enable_validation_layers = false;
 
 namespace artemis {
 
-std::unique_ptr<vk::raii::Instance> VulkanUtils::create_instance(
-    const std::unique_ptr<vk::raii::Context>& context) {
-    if (enable_validation_layers && !check_validation_layer_support(context)) {
+std::unique_ptr<vk::Instance> VulkanUtils::create_instance() {
+    if (enable_validation_layers && !check_validation_layer_support()) {
         throw std::runtime_error(
             "(vk) Validation layers enabled but not available.");
     }
@@ -54,14 +54,15 @@ std::unique_ptr<vk::raii::Instance> VulkanUtils::create_instance(
         create_info.ppEnabledLayerNames = validation_layers.data();
     }
 
-    return std::make_unique<vk::raii::Instance>(*context, create_info);
+    return std::make_unique<vk::Instance>(
+        vk::createInstance(create_info, nullptr));
 }
 
-std::tuple<std::unique_ptr<vk::raii::Device>, std::unique_ptr<vk::raii::Queue>,
-           std::unique_ptr<vk::raii::Queue>>
+std::tuple<std::unique_ptr<vk::Device>, std::unique_ptr<vk::Queue>,
+           std::unique_ptr<vk::Queue>>
 VulkanUtils::create_device_and_queues(
-    const std::unique_ptr<vk::raii::Instance>& instance,
-    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
+    const std::unique_ptr<vk::Instance>& instance,
+    const std::unique_ptr<vk::SurfaceKHR>& surface) {
     auto physical_device = choose_physical_device(instance, surface);
     auto indices = find_queue_families(physical_device, surface);
 
@@ -89,29 +90,29 @@ VulkanUtils::create_device_and_queues(
         create_info.ppEnabledLayerNames = validation_layers.data();
     }
 
-    auto device = vk::raii::Device(physical_device, create_info);
-    auto graphics_queue = vk::raii::Queue(device, indices.graphics.value(), 0);
-    auto present_queue = vk::raii::Queue(device, indices.present.value(), 0);
-    return {std::make_unique<vk::raii::Device>(std::move(device)),
-            std::make_unique<vk::raii::Queue>(std::move(graphics_queue)),
-            std::make_unique<vk::raii::Queue>(std::move(present_queue))};
+    auto device = physical_device.createDevice(create_info);
+    auto graphics_queue = device.getQueue(indices.graphics.value(), 0);
+    auto present_queue = device.getQueue(indices.present.value(), 0);
+    return {std::make_unique<vk::Device>(std::move(device)),
+            std::make_unique<vk::Queue>(std::move(graphics_queue)),
+            std::make_unique<vk::Queue>(std::move(present_queue))};
 }
 
-std::unique_ptr<vk::raii::SurfaceKHR>
-VulkanUtils::create_surface(const std::unique_ptr<vk::raii::Instance>& instance,
+std::unique_ptr<vk::SurfaceKHR>
+VulkanUtils::create_surface(const std::unique_ptr<vk::Instance>& instance,
                             GLFWwindow* window) {
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(**instance, window, nullptr, &surface) !=
+    if (glfwCreateWindowSurface(*instance, window, nullptr, &surface) !=
         VK_SUCCESS) {
         throw std::runtime_error("(vk) Failed to create window surface.");
     }
-    return std::make_unique<vk::raii::SurfaceKHR>(*instance, surface);
+    return std::make_unique<vk::SurfaceKHR>(surface);
 }
 
-vk::raii::PhysicalDevice VulkanUtils::choose_physical_device(
-    const std::unique_ptr<vk::raii::Instance>& instance,
-    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
-    vk::raii::PhysicalDevices devices(*instance);
+vk::PhysicalDevice VulkanUtils::choose_physical_device(
+    const std::unique_ptr<vk::Instance>& instance,
+    const std::unique_ptr<vk::SurfaceKHR>& surface) {
+    auto devices = instance->enumeratePhysicalDevices();
     int best_device = -1;
     for (int i = 0; i < devices.size(); ++i) {
         if (is_device_suitable(devices[i], surface)) {
@@ -122,12 +123,12 @@ vk::raii::PhysicalDevice VulkanUtils::choose_physical_device(
         throw std::runtime_error(
             "(vk) Failed to find a suitable physical device");
     }
-    return vk::raii::PhysicalDevice(std::move(devices[best_device]));
+    return vk::PhysicalDevice(std::move(devices[best_device]));
 }
 
 bool VulkanUtils::is_device_suitable(
-    const vk::raii::PhysicalDevice& device,
-    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
+    const vk::PhysicalDevice& device,
+    const std::unique_ptr<vk::SurfaceKHR>& surface) {
     auto surface_capabilites = device.getSurfaceCapabilitiesKHR(*surface);
     auto available_formats = device.getSurfaceFormatsKHR(*surface);
     auto available_present_modes = device.getSurfacePresentModesKHR(*surface);
@@ -136,8 +137,8 @@ bool VulkanUtils::is_device_suitable(
     return indices.is_complete();
 }
 QueueFamilyIndices VulkanUtils::find_queue_families(
-    const vk::raii::PhysicalDevice& device,
-    const std::unique_ptr<vk::raii::SurfaceKHR>& surface) {
+    const vk::PhysicalDevice& device,
+    const std::unique_ptr<vk::SurfaceKHR>& surface) {
     QueueFamilyIndices indices;
     auto queue_families = device.getQueueFamilyProperties();
 
@@ -160,9 +161,8 @@ QueueFamilyIndices VulkanUtils::find_queue_families(
     return indices;
 }
 
-bool VulkanUtils::check_validation_layer_support(
-    const std::unique_ptr<vk::raii::Context>& context) {
-    auto properties = context->enumerateInstanceLayerProperties();
+bool VulkanUtils::check_validation_layer_support() {
+    auto properties = vk::enumerateInstanceLayerProperties();
 
     for (auto layer_name : validation_layers) {
         bool layer_found = false;
@@ -197,9 +197,8 @@ std::vector<const char*> VulkanUtils::get_required_extensions() {
     return extensions;
 }
 
-std::unique_ptr<vk::raii::DebugUtilsMessengerEXT>
-VulkanUtils::create_debug_messenger(
-    const std::unique_ptr<vk::raii::Instance>& instance,
+std::unique_ptr<vk::DebugUtilsMessengerEXT> VulkanUtils::create_debug_messenger(
+    const std::unique_ptr<vk::Instance>& instance,
     vk::PFN_DebugUtilsMessengerCallbackEXT callback) {
     if (!enable_validation_layers) {
         return nullptr;
@@ -214,7 +213,7 @@ VulkanUtils::create_debug_messenger(
         TypeFlags::eGeneral | TypeFlags::ePerformance | TypeFlags::eValidation,
         callback);
 
-    return std::make_unique<vk::raii::DebugUtilsMessengerEXT>(
+    return std::make_unique<vk::DebugUtilsMessengerEXT>(
         instance->createDebugUtilsMessengerEXT(create_info));
 }
 
@@ -257,8 +256,8 @@ VulkanUtils::choose_swap_extent(const vk::SurfaceCapabilitiesKHR& capabilities,
     };
 }
 
-void VulkanUtils::transition_image(vk::raii::Image* image,
-                                   vk::raii::CommandBuffer* command_buffer,
+void VulkanUtils::transition_image(vk::Image* image,
+                                   vk::CommandBuffer* command_buffer,
                                    const TransitionImageInfo& info) {
     vk::ImageMemoryBarrier2 barrier(
         info.srcStageMask, info.srcAccessMask, info.dstStageMask,

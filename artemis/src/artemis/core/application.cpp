@@ -7,12 +7,18 @@ namespace artemis {
 
 void Application::run() {
     Log::init();
+    context_.max_frames_in_flight = 3;
+    context_.deferred_queue =
+        std::make_unique<DeferredQueue>(context_.max_frames_in_flight);
     context_.event_bus = std::make_unique<EventBus>();
     context_.window = std::make_unique<Window>();
     context_.vulkan.init(context_.window);
 
     listener_init();
     while (running_) {
+        // Important to flush the queue before letting anything first enqueue
+        // anything
+        context_.deferred_queue->flush();
         if (context_.window->should_close()) {
             running_ = false;
         }

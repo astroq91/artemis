@@ -1,6 +1,8 @@
 #pragma once
 
-#include <vulkan/vulkan_raii.hpp>
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
+#include "artemis/assets/deferred_queue.hpp"
 #include "artemis/utils/enum_flags.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
 
@@ -20,6 +22,7 @@ template <> inline constexpr bool is_flag_enum<ShaderType> = true;
 class Shader {
   public:
     Shader() = default;
+    ~Shader();
 
     /**
      * Creates a shader.
@@ -27,8 +30,8 @@ class Shader {
      * @param file The path to the given shader file.
      * @param type All types of shaders contained in the file.
      */
-    Shader(const VulkanContext& context, const std::string& file,
-           const ShaderType& type);
+    Shader(const std::string& file, const ShaderType& type,
+           const VulkanContext& context, DeferredQueue* deferred_queue);
 
     /**
      * Get the type(s) contained in the shader.
@@ -40,12 +43,13 @@ class Shader {
      * Get the internal shader module handle.
      * @return The handle.
      */
-    const vk::raii::ShaderModule& get_vk_shader_module() const {
-        return module_;
-    }
+    const vk::ShaderModule& get_vk_shader_module() const { return module_; }
 
   private:
-    vk::raii::ShaderModule module_{nullptr};
+    vk::ShaderModule module_{nullptr};
     ShaderType type_;
+
+    vk::Device* device_;
+    DeferredQueue* deferred_queue_;
 };
 } // namespace artemis

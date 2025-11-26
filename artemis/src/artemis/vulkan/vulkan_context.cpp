@@ -6,12 +6,7 @@
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
-namespace vk {
-namespace detail {
-DispatchLoaderDynamic defaultDispatchLoaderDynamic;
-}
-} // namespace vk
-
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 namespace artemis {
 static bool s_initialized = false;
 
@@ -37,6 +32,20 @@ debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     return VK_FALSE;
 }
 
+VulkanContext::~VulkanContext() {
+    if (!instance || !device) {
+        Log::get()->error(
+            "(vk) The instance or device were null in the VulkanContext "
+            "destructor. This should not be possible.");
+        return;
+    }
+    instance->destroySurfaceKHR(*surface);
+    instance->destroyDebugUtilsMessengerEXT(*debug_messenger);
+    device->destroyCommandPool(*command_pool);
+    device->destroy();
+    instance->destroy();
+}
+
 void VulkanContext::init(const std::unique_ptr<Window>& window) {
     auto log = Log::get();
     log->debug("(vk) Initializing vulkan context.");
@@ -46,13 +55,15 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
     // Load a minimal set of functions
     vk::detail::defaultDispatchLoaderDynamic.init();
 
-    context = std::make_unique<vk::raii::Context>();
     log->debug("(vk) Creating instance.");
     try {
-        instance = VulkanUtils::create_instance(context);
+        instance = VulkanUtils::create_instance();
     } catch (const vk::SystemError& err) {
         log->critical("(vk) Failed to create vulkan instance: {}", err.what());
     }
+
+    // Initialize function pointers for the instance
+    vk::detail::defaultDispatchLoaderDynamic.init(*instance);
 
     log->debug("(vk) Creating debug messenger.");
     try {
@@ -71,7 +82,7 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
 
     log->debug("(vk) Choosing physical device.");
     try {
-        physical_device = std::make_unique<vk::raii::PhysicalDevice>(
+        physical_device = std::make_unique<vk::PhysicalDevice>(
             VulkanUtils::choose_physical_device(instance, surface));
     } catch (const std::exception& err) {
         log->critical("(vk) Failed to choose physical device.");
@@ -87,6 +98,8 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
     } catch (const vk::SystemError& err) {
         log->critical("(vk) Failed to create device.");
     }
+    // Initialize function pointers for the device
+    vk::detail::defaultDispatchLoaderDynamic.init(*device);
 
     // Cache additional information
     queue_family_indices =
@@ -94,10 +107,9 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
 
     log->debug("(vk) Creating command pool.");
     try {
-        command_pool = std::make_unique<vk::raii::CommandPool>(
-            *device, vk::CommandPoolCreateInfo(
-                         vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-                         queue_family_indices.graphics.value()));
+        command_pool = std::make_unique<vk::CommandPool>(
+            device->createCommandPool(vk::CommandPoolCreateInfo(
+                {}, queue_family_indices.graphics.value())));
     } catch (const vk::SystemError& err) {
         log->critical("(vk) Failed to create main command pool.");
     }

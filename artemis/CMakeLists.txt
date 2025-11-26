@@ -18,9 +18,11 @@ set(SOURCES
   "${SRC}/vulkan/swap_chain.cpp"
   "${SRC}/vulkan/shader.cpp"
   "${SRC}/vulkan/pipeline.cpp"
+  "${SRC}/vulkan/command_buffer.cpp"
   "${SRC}/events/event_bus.cpp"
   "${SRC}/utils/logger.cpp"
   "${SRC}/utils/io.cpp"
+  "${SRC}/assets/deferred_queue.cpp"
 )
 
 set(SHADERS_DIR
@@ -46,6 +48,7 @@ target_link_libraries(artemis
 target_compile_definitions(artemis
   PRIVATE
     GLFW_INCLUDE_VULKAN
+    VULKAN_HPP_DISPATCH_LOADER_DYNAMIC
     RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources"
 )
 

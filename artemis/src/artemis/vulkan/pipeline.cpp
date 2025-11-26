@@ -1,9 +1,19 @@
 #include "pipeline.hpp"
-#include <stdexcept>
-#include <vulkan/vulkan_structs.hpp>
-
+#include "artemis/assets/deferred_queue.hpp"
 namespace artemis {
-Pipeline::Pipeline(const VulkanContext& context, const PipelineInfo& info) {
+
+Pipeline::~Pipeline() {
+    if (pipeline_ != nullptr) {
+        deferred_queue_->enqueue(
+            [dev = device_, layout = layout_, pipeline = pipeline_]() {
+                dev->destroyPipelineLayout(layout);
+                dev->destroyPipeline(pipeline);
+            });
+    }
+}
+Pipeline::Pipeline(const PipelineInfo& info, const VulkanContext& context,
+                   DeferredQueue* deferred_queue)
+    : device_(context.device.get()), deferred_queue_(deferred_queue) {
     /* SHADERS */
     vk::PipelineShaderStageCreateInfo vert_shader_stage_info(
         {}, vk::ShaderStageFlagBits::eVertex,
@@ -65,7 +75,7 @@ Pipeline::Pipeline(const VulkanContext& context, const PipelineInfo& info) {
     /* PIPELINE LAYOUT */
     vk::PipelineLayoutCreateInfo pipeline_layout_info({}, 0, nullptr, 0,
                                                       nullptr);
-    layout_ = vk::raii::PipelineLayout(*context.device, pipeline_layout_info);
+    layout_ = context.device->createPipelineLayout(pipeline_layout_info);
 
     /* PIPELINE CREATION */
     vk::GraphicsPipelineCreateInfo pipeline_info;
@@ -82,7 +92,8 @@ Pipeline::Pipeline(const VulkanContext& context, const PipelineInfo& info) {
     pipeline_info.layout = layout_;
     pipeline_info.renderPass = nullptr;
 
-    pipeline_ = vk::raii::Pipeline(*context.device, nullptr, pipeline_info);
+    pipeline_ =
+        context.device->createGraphicsPipeline(nullptr, pipeline_info).value;
 }
 
 } // namespace artemis

@@ -4,6 +4,9 @@
 #include "artemis/events/event_bus.hpp"
 #include "artemis/events/window_event.hpp"
 #include "artemis/utils/logger.hpp"
+#include "artemis/vulkan/command_buffer.hpp"
+#include "artemis/vulkan/pipeline.hpp"
+#include "artemis/vulkan/swap_chain.hpp"
 #include <memory>
 
 class Sandbox : public artemis::ApplicationListener {
@@ -16,4 +19,10 @@ class Sandbox : public artemis::ApplicationListener {
   private:
     std::shared_ptr<artemis::utils::Logger> logger_;
     artemis::ApplicationContext* app_context_;
+
+    artemis::CommandBuffer command_buffer_;
+    artemis::SwapChain swap_chain_;
+    artemis::Pipeline pipeline_;
+    artemis::Shader shader_;
+    uint32_t image_index_ = 0;
 };

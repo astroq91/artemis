@@ -1,9 +1,20 @@
 #include "swap_chain.hpp"
 #include "GLFW/glfw3.h"
+#include <algorithm>
 #include <vulkan/vulkan_raii.hpp>
 
 namespace artemis {
-SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window) {
+SwapChain::~SwapChain() {
+    if (swap_chain_ != nullptr) {
+        for (auto& view : image_views_) {
+            device_->destroyImageView(view);
+        }
+        device_->destroySwapchainKHR(swap_chain_);
+    }
+}
+
+SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window)
+    : device_(context.device.get()) {
     auto surface_capabilities =
         context.physical_device->getSurfaceCapabilitiesKHR(*context.surface);
     surface_format_ = VulkanUtils::choose_swap_surface_format(
@@ -38,15 +49,15 @@ SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window) {
         create_info.imageSharingMode = vk::SharingMode::eExclusive;
     }
 
-    swap_chain_ = vk::raii::SwapchainKHR(*context.device, create_info);
-    images_ = swap_chain_.getImages();
+    swap_chain_ = context.device->createSwapchainKHR(create_info);
+    images_ = context.device->getSwapchainImagesKHR(swap_chain_);
     image_format_ = surface_format_.format;
 
     for (const auto& image : images_) {
         vk::ImageViewCreateInfo create_info(
             {}, image, vk::ImageViewType::e2D, image_format_, {},
             {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
-        image_views_.emplace_back(*context.device, create_info);
+        image_views_.emplace_back(context.device->createImageView(create_info));
     }
 }
 } // namespace artemis

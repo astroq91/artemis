@@ -1,8 +1,9 @@
 #pragma once
 
+#include "artemis/assets/deferred_queue.hpp"
 #include "artemis/vulkan/shader.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
-#include <vulkan/vulkan_raii.hpp>
+#include <vulkan/vulkan.hpp>
 namespace artemis {
 
 /**
@@ -17,13 +18,18 @@ struct PipelineInfo {
 class Pipeline {
   public:
     Pipeline() = default;
+    ~Pipeline();
 
-    Pipeline(const VulkanContext& context, const PipelineInfo& info);
+    Pipeline(const PipelineInfo& info, const VulkanContext& context,
+             DeferredQueue* deferred_queue);
 
-    const vk::raii::Pipeline& get_vk_pipeline() const { return pipeline_; }
+    const vk::Pipeline& get_vk_pipeline() const { return pipeline_; }
 
   private:
-    vk::raii::Pipeline pipeline_{nullptr};
-    vk::raii::PipelineLayout layout_{nullptr};
+    vk::Pipeline pipeline_{nullptr};
+    vk::PipelineLayout layout_{nullptr};
+
+    vk::Device* device_;
+    DeferredQueue* deferred_queue_;
 };
 } // namespace artemis
