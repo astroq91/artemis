@@ -15,6 +15,7 @@ SwapChain::~SwapChain() {
 
 SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window)
     : device_(context.device.get()) {
+
     auto surface_capabilities =
         context.physical_device->getSurfaceCapabilitiesKHR(*context.surface);
     surface_format_ = VulkanUtils::choose_swap_surface_format(
@@ -59,5 +60,13 @@ SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window)
             {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
         image_views_.emplace_back(context.device->createImageView(create_info));
     }
+}
+
+vk::ResultValue<uint32_t> SwapChain::acquire_next_image(uint64_t timeout,
+                                                        Semaphore* semaphore,
+                                                        Fence* fence) {
+    return device_->acquireNextImageKHR(swap_chain_, timeout,
+                                        semaphore->get_vk_semaphore(),
+                                        fence->get_vk_fence());
 }
 } // namespace artemis

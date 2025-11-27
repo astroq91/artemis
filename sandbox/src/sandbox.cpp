@@ -4,6 +4,7 @@
 #include "artemis/vulkan/pipeline.hpp"
 #include "artemis/vulkan/shader.hpp"
 #include "artemis/vulkan/swap_chain.hpp"
+#include <cstdint>
 #include <memory>
 #include <print>
 
@@ -26,6 +27,11 @@ void Sandbox::on_start(ApplicationContext* context) {
             },
             context->vulkan, context->deferred_queue.get());
         command_buffer_ = CommandBuffer(context->vulkan);
+        draw_fence_ = Fence(&context->vulkan, context->deferred_queue.get());
+        render_semaphore_ =
+            Semaphore(&context->vulkan, context->deferred_queue.get());
+        present_semaphore_ =
+            Semaphore(&context->vulkan, context->deferred_queue.get());
     } catch (const std::exception& e) {
         logger_->error(e.what());
     }
@@ -35,6 +41,14 @@ void Sandbox::on_start(ApplicationContext* context) {
 }
 
 void Sandbox::on_update(float ts) {
+    auto result = swap_chain_.acquire_next_image(UINT64_MAX,
+                                                 &present_semaphore_, nullptr);
+    if (result.result != vk::Result::eSuccess) {
+        logger_->warn("Could not acquire next image.");
+        return;
+    }
+    image_index_ = result.value;
+    draw_fence_.reset();
     command_buffer_.begin();
     VulkanUtils::transition_image(
         &swap_chain_.get_image(image_index_),
@@ -86,6 +100,23 @@ void Sandbox::on_update(float ts) {
             .dstStageMask = vk::PipelineStageFlagBits2::eBottomOfPipe,
         });
     command_buffer_.end();
+    vk::PipelineStageFlags wait_dest_stage_mask(
+        vk::PipelineStageFlagBits::eColorAttachmentOutput);
+
+    vk::SubmitInfo submit_info(1, &present_semaphore_.get_vk_semaphore(),
+                               &wait_dest_stage_mask, 1,
+                               &command_buffer_.get_vk_command_buffer(), 1,
+                               &render_semaphore_.get_vk_semaphore());
+    auto res = app_context_->vulkan.graphics_queue->submit(
+        1, &submit_info, draw_fence_.get_vk_fence());
+
+    vk::PresentInfoKHR present_info(1, &render_semaphore_.get_vk_semaphore(), 1,
+                                    &swap_chain_.get_vk_swapchain(),
+                                    &image_index_);
+    res = app_context_->vulkan.present_queue->presentKHR(&present_info);
+
+    while (draw_fence_.wait(UINT64_MAX) == vk::Result::eTimeout)
+        ;
 }
 
 void Sandbox::on_window_event(const WindowEvent& event) {

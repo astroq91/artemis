@@ -19,8 +19,10 @@ class Semaphore {
         semaphore_ = device_->createSemaphore({});
     }
 
+    vk::Semaphore& get_vk_semaphore() { return semaphore_; }
+
   private:
-    vk::Semaphore semaphore_;
+    vk::Semaphore semaphore_{nullptr};
     vk::Device* device_;
     DeferredQueue* deferred_queue_;
 };

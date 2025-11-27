@@ -20,8 +20,15 @@ class Fence {
             vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
     }
 
+    vk::Result wait(uint64_t timeout) {
+        return device_->waitForFences({fence_}, vk::True, timeout);
+    }
+    void reset() { device_->resetFences({fence_}); }
+
+    vk::Fence& get_vk_fence() { return fence_; }
+
   private:
-    vk::Fence fence_;
+    vk::Fence fence_{nullptr};
     vk::Device* device_;
     DeferredQueue* deferred_queue_;
 };

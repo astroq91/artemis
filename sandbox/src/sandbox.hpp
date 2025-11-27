@@ -5,7 +5,9 @@
 #include "artemis/events/window_event.hpp"
 #include "artemis/utils/logger.hpp"
 #include "artemis/vulkan/command_buffer.hpp"
+#include "artemis/vulkan/fence.hpp"
 #include "artemis/vulkan/pipeline.hpp"
+#include "artemis/vulkan/semaphore.hpp"
 #include "artemis/vulkan/swap_chain.hpp"
 #include <memory>
 
@@ -24,5 +26,8 @@ class Sandbox : public artemis::ApplicationListener {
     artemis::SwapChain swap_chain_;
     artemis::Pipeline pipeline_;
     artemis::Shader shader_;
+    artemis::Semaphore present_semaphore_;
+    artemis::Semaphore render_semaphore_;
+    artemis::Fence draw_fence_;
     uint32_t image_index_ = 0;
 };
