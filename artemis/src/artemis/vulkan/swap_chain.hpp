@@ -9,6 +9,9 @@ class SwapChain {
   public:
     SwapChain() = default;
     ~SwapChain();
+
+    SwapChain(const SwapChain&) = delete;
+    SwapChain& operator=(const SwapChain&) = delete;
     /**
      * Creates a swap chain.
      * @param context The vulkan context.

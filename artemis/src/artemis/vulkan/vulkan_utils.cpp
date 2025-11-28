@@ -71,6 +71,7 @@ VulkanUtils::create_device_and_queues(
     vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
         extended_dynamic_state_features;
     vulkan_13_features.dynamicRendering = vk::True;
+    vulkan_13_features.synchronization2 = vk::True;
     vulkan_13_features.pNext = &extended_dynamic_state_features;
     features.pNext = &vulkan_13_features;
 
@@ -102,8 +103,8 @@ std::unique_ptr<vk::SurfaceKHR>
 VulkanUtils::create_surface(const std::unique_ptr<vk::Instance>& instance,
                             GLFWwindow* window) {
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(*instance, window, nullptr, &surface) !=
-        VK_SUCCESS) {
+    auto res = glfwCreateWindowSurface(*instance, window, nullptr, &surface);
+    if (res != VK_SUCCESS) {
         throw std::runtime_error("(vk) Failed to create window surface.");
     }
     return std::make_unique<vk::SurfaceKHR>(surface);

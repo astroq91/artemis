@@ -22,12 +22,12 @@ class Sandbox : public artemis::ApplicationListener {
     std::shared_ptr<artemis::utils::Logger> logger_;
     artemis::ApplicationContext* app_context_;
 
-    artemis::CommandBuffer command_buffer_;
-    artemis::SwapChain swap_chain_;
-    artemis::Pipeline pipeline_;
-    artemis::Shader shader_;
-    artemis::Semaphore present_semaphore_;
-    artemis::Semaphore render_semaphore_;
-    artemis::Fence draw_fence_;
+    std::unique_ptr<artemis::CommandBuffer> command_buffer_;
+    std::unique_ptr<artemis::SwapChain> swap_chain_;
+    std::unique_ptr<artemis::Pipeline> pipeline_;
+    std::unique_ptr<artemis::Shader> shader_;
+    std::unique_ptr<artemis::Semaphore> present_semaphore_;
+    std::unique_ptr<artemis::Semaphore> render_semaphore_;
+    std::unique_ptr<artemis::Fence> draw_fence_;
     uint32_t image_index_ = 0;
 };

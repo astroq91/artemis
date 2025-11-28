@@ -50,6 +50,8 @@ target_compile_definitions(artemis
     GLFW_INCLUDE_VULKAN
     VULKAN_HPP_DISPATCH_LOADER_DYNAMIC
     RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources"
+  PUBLIC
+    VK_NO_PROTOTYPES
 )
 
 target_add_slang_shaders(artemis_shaders 

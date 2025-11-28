@@ -8,6 +8,8 @@ CommandBuffer::CommandBuffer(const VulkanContext& context) {
         std::move(context.device->allocateCommandBuffers(alloc_info).front());
 }
 
-void CommandBuffer::begin() { auto res = command_buffer_.begin({}); }
+void CommandBuffer::begin(const vk::CommandBufferBeginInfo& info) {
+    auto res = command_buffer_.begin(&info);
+}
 void CommandBuffer::end() { command_buffer_.end(); }
 } // namespace artemis

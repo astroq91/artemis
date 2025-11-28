@@ -109,7 +109,8 @@ void VulkanContext::init(const std::unique_ptr<Window>& window) {
     try {
         command_pool = std::make_unique<vk::CommandPool>(
             device->createCommandPool(vk::CommandPoolCreateInfo(
-                {}, queue_family_indices.graphics.value())));
+                vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                queue_family_indices.graphics.value())));
     } catch (const vk::SystemError& err) {
         log->critical("(vk) Failed to create main command pool.");
     }

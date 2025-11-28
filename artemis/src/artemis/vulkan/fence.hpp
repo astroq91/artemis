@@ -20,10 +20,13 @@ class Fence {
             vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
     }
 
+    Fence(const Fence&) = delete;
+    Fence& operator=(const Fence&) = delete;
+
     vk::Result wait(uint64_t timeout) {
         return device_->waitForFences({fence_}, vk::True, timeout);
     }
-    void reset() { device_->resetFences({fence_}); }
+    void reset_fence() { device_->resetFences({fence_}); }
 
     vk::Fence& get_vk_fence() { return fence_; }
 

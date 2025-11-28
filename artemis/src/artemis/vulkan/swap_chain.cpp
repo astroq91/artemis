@@ -65,8 +65,8 @@ SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window)
 vk::ResultValue<uint32_t> SwapChain::acquire_next_image(uint64_t timeout,
                                                         Semaphore* semaphore,
                                                         Fence* fence) {
-    return device_->acquireNextImageKHR(swap_chain_, timeout,
-                                        semaphore->get_vk_semaphore(),
-                                        fence->get_vk_fence());
+    return device_->acquireNextImageKHR(
+        swap_chain_, timeout, semaphore->get_vk_semaphore(),
+        fence ? fence->get_vk_fence() : nullptr);
 }
 } // namespace artemis

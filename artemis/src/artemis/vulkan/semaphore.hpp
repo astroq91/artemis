@@ -19,6 +19,9 @@ class Semaphore {
         semaphore_ = device_->createSemaphore({});
     }
 
+    Semaphore(const Semaphore&) = delete;
+    Semaphore& operator=(const Semaphore&) = delete;
+
     vk::Semaphore& get_vk_semaphore() { return semaphore_; }
 
   private:

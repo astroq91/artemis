@@ -23,6 +23,9 @@ class Pipeline {
     Pipeline(const PipelineInfo& info, const VulkanContext& context,
              DeferredQueue* deferred_queue);
 
+    Pipeline(const Pipeline&) = delete;
+    Pipeline& operator=(const Pipeline&) = delete;
+
     const vk::Pipeline& get_vk_pipeline() const { return pipeline_; }
 
   private:

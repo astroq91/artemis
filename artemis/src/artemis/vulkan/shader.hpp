@@ -24,6 +24,9 @@ class Shader {
     Shader() = default;
     ~Shader();
 
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
+
     /**
      * Creates a shader.
      * @param context The vulkan context.
