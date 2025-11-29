@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <artemis/events/event.hpp>
 #include <artemis/events/event_bus.hpp>
 

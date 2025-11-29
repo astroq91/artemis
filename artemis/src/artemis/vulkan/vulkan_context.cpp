@@ -33,6 +33,7 @@ debug_callback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 }
 
 VulkanContext::~VulkanContext() {
+    Log::get()->trace("Destroying vulkan context.");
     if (!instance || !device) {
         Log::get()->error(
             "(vk) The instance or device were null in the VulkanContext "
@@ -46,7 +47,7 @@ VulkanContext::~VulkanContext() {
     instance->destroy();
 }
 
-void VulkanContext::init(const std::unique_ptr<Window>& window) {
+void VulkanContext::init(Window* window) {
     auto log = Log::get();
     log->debug("(vk) Initializing vulkan context.");
     if (s_initialized) {

@@ -1,26 +1,29 @@
 #include "swap_chain.hpp"
 #include "GLFW/glfw3.h"
+#include "artemis/core/log.hpp"
 #include <algorithm>
 #include <vulkan/vulkan_raii.hpp>
 
 namespace artemis {
 SwapChain::~SwapChain() {
     if (swap_chain_ != nullptr) {
+        Log::get()->trace("Destroying swap chain.");
+        device_->destroySwapchainKHR(swap_chain_);
         for (auto& view : image_views_) {
             device_->destroyImageView(view);
         }
-        device_->destroySwapchainKHR(swap_chain_);
     }
 }
 
-SwapChain::SwapChain(const VulkanContext& context, GLFWwindow* window)
+SwapChain::SwapChain(const VulkanContext& context, Window* window)
     : device_(context.device.get()) {
 
     auto surface_capabilities =
         context.physical_device->getSurfaceCapabilitiesKHR(*context.surface);
     surface_format_ = VulkanUtils::choose_swap_surface_format(
         context.physical_device->getSurfaceFormatsKHR(*context.surface));
-    extent_ = VulkanUtils::choose_swap_extent(surface_capabilities, window);
+    extent_ = VulkanUtils::choose_swap_extent(surface_capabilities,
+                                              window->get_handle());
     uint32_t image_count = surface_capabilities.minImageCount + 1;
     if (surface_capabilities.maxImageCount > 0 &&
         image_count > surface_capabilities.maxImageCount) {

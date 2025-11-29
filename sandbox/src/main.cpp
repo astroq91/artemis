@@ -5,6 +5,8 @@
 
 int main() {
     artemis::Application app;
-    auto listener = std::make_unique<Sandbox>();
-    app.set_listener(std::move(listener)).run();
+    {
+        auto listener = std::make_unique<Sandbox>();
+        app.set_listener(std::move(listener)).run();
+    }
 }

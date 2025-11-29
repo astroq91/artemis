@@ -17,7 +17,7 @@ class SwapChain {
      * @param context The vulkan context.
      * @param window The window handle.
      */
-    SwapChain(const VulkanContext& context, GLFWwindow* window);
+    SwapChain(const VulkanContext& context, Window* window);
 
     vk::Image& get_image(uint32_t index) { return images_[index]; }
     vk::ImageView& get_image_view(uint32_t index) {
@@ -31,6 +31,8 @@ class SwapChain {
      * @return The format
      */
     vk::Format get_image_format() const { return image_format_; }
+
+    uint32_t get_image_count() const { return images_.size(); }
 
     vk::ResultValue<uint32_t>
     acquire_next_image(uint64_t timeout, Semaphore* semaphore, Fence* fence);

@@ -28,7 +28,7 @@ class Application {
 
   private:
     bool running_ = true;
-    std::unique_ptr<ApplicationListener> listener_;
     ApplicationContext context_;
+    std::unique_ptr<ApplicationListener> listener_;
 };
 }; // namespace artemis

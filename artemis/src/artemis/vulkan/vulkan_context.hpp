@@ -7,7 +7,7 @@
 namespace artemis {
 struct VulkanContext {
     ~VulkanContext();
-    void init(const std::unique_ptr<Window>& window);
+    void init(Window* window);
 
     std::unique_ptr<vk::Instance> instance;
     std::unique_ptr<vk::Device> device;

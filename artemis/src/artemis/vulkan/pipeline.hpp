@@ -9,7 +9,7 @@ namespace artemis {
 /**
  * Specification for a pipeline.
  */
-struct PipelineInfo {
+struct PipelineCreateInfo {
     const Shader* vertex_shader;
     const Shader* fragment_shader;
     vk::Format swap_chain_image_format;
@@ -20,7 +20,7 @@ class Pipeline {
     Pipeline() = default;
     ~Pipeline();
 
-    Pipeline(const PipelineInfo& info, const VulkanContext& context,
+    Pipeline(const PipelineCreateInfo& info, const VulkanContext& context,
              DeferredQueue* deferred_queue);
 
     Pipeline(const Pipeline&) = delete;

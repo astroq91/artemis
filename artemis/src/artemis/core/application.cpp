@@ -12,7 +12,7 @@ void Application::run() {
         std::make_unique<DeferredQueue>(context_.max_frames_in_flight);
     context_.event_bus = std::make_unique<EventBus>();
     context_.window = std::make_unique<Window>();
-    context_.vulkan.init(context_.window);
+    context_.vulkan.init(context_.window.get());
 
     listener_init();
     while (running_) {
@@ -25,6 +25,10 @@ void Application::run() {
         listener_->on_update(1.0f);
         context_.window->on_update();
     }
+
+    // Wait for all outstanding queue operations to complete before deleting
+    // resources
+    context_.vulkan.device->waitIdle();
 }
 
 void Application::listener_init() {

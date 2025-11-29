@@ -11,7 +11,7 @@ Pipeline::~Pipeline() {
             });
     }
 }
-Pipeline::Pipeline(const PipelineInfo& info, const VulkanContext& context,
+Pipeline::Pipeline(const PipelineCreateInfo& info, const VulkanContext& context,
                    DeferredQueue* deferred_queue)
     : device_(context.device.get()), deferred_queue_(deferred_queue) {
     /* SHADERS */

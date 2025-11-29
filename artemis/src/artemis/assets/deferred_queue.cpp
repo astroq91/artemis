@@ -5,6 +5,15 @@ namespace artemis {
 DeferredQueue::DeferredQueue(uint32_t num_frames)
     : queues_(num_frames), num_frames_(num_frames) {}
 
+DeferredQueue::~DeferredQueue() {
+    for (auto& queue : queues_) {
+        while (!queue.empty()) {
+            auto& func = queue.front();
+            func();
+            queue.pop();
+        }
+    }
+}
 void DeferredQueue::flush() {
     while (!queues_[frame_index_].empty()) {
         auto& func = queues_[frame_index_].front();

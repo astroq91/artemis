@@ -16,26 +16,26 @@ void Sandbox::on_start(ApplicationContext* context) {
     logger_ = utils::Logger::create("SANDBOX");
 
     try {
-        swap_chain_ = std::make_unique<SwapChain>(
-            context->vulkan, context->window->get_handle());
+        swap_chain_ =
+            std::make_unique<SwapChain>(context->vulkan, context->window.get());
         shader_ = std::make_unique<Shader>(
             RESOURCES_DIR "/shaders/bin/triangle.spv",
             ShaderType::Vertex | ShaderType::Fragment, context->vulkan,
             context->deferred_queue.get());
         pipeline_ = std::make_unique<Pipeline>(
-            PipelineInfo{
+            PipelineCreateInfo{
                 .vertex_shader = shader_.get(),
                 .fragment_shader = shader_.get(),
                 .swap_chain_image_format = swap_chain_->get_image_format(),
             },
             context->vulkan, context->deferred_queue.get());
         command_buffer_ = std::make_unique<CommandBuffer>(context->vulkan);
-        draw_fence_ = std::make_unique<Fence>(&context->vulkan,
+        draw_fence_ = std::make_unique<Fence>(context->vulkan,
                                               context->deferred_queue.get());
         render_semaphore_ = std::make_unique<Semaphore>(
-            &context->vulkan, context->deferred_queue.get());
+            context->vulkan, context->deferred_queue.get());
         present_semaphore_ = std::make_unique<Semaphore>(
-            &context->vulkan, context->deferred_queue.get());
+            context->vulkan, context->deferred_queue.get());
     } catch (const std::exception& e) {
         logger_->error(e.what());
     }

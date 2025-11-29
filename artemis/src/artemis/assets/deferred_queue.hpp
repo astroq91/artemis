@@ -11,6 +11,7 @@ class DeferredQueue {
   public:
     DeferredQueue() = default;
     DeferredQueue(uint32_t num_frames);
+    ~DeferredQueue();
 
     /**
      * Flushes the queues of the current frame index,
