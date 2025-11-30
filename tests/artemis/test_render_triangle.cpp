@@ -57,19 +57,18 @@ TEST(artemis, render_triangle) {
     }
 
     uint32_t frame_index = 0;
-    uint32_t image_index = 0;
     while (!window.should_close()) {
         deferred_queue.flush();
 
-        while (fences[image_index]->wait(UINT64_MAX) == vk::Result::eTimeout)
+        while (fences[frame_index]->wait(UINT64_MAX) == vk::Result::eTimeout)
             ;
-        fences[image_index]->reset_fence();
+        fences[frame_index]->reset_fence();
 
         auto result_value = swap_chain.acquire_next_image(
-            UINT64_MAX, present_semaphores[image_index].get(), nullptr);
+            UINT64_MAX, present_semaphores[frame_index].get(), nullptr);
         ASSERT_EQ(result_value.result, vk::Result::eSuccess);
 
-        image_index = result_value.value;
+        uint32_t image_index = result_value.value;
         cbs[frame_index]->begin();
         VulkanUtils::transition_image(
             &swap_chain.get_image(image_index),
@@ -129,12 +128,12 @@ TEST(artemis, render_triangle) {
             vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
         vk::SubmitInfo submit_info(
-            1, &present_semaphores[image_index]->get_vk_semaphore(),
+            1, &present_semaphores[frame_index]->get_vk_semaphore(),
             &wait_dest_stage_mask, 1,
             &cbs[frame_index]->get_vk_command_buffer(), 1,
             &render_semaphores[image_index]->get_vk_semaphore());
         auto res = context.graphics_queue->submit(
-            1, &submit_info, fences[image_index]->get_vk_fence());
+            1, &submit_info, fences[frame_index]->get_vk_fence());
 
         vk::PresentInfoKHR present_info(
             1, &render_semaphores[image_index]->get_vk_semaphore(), 1,
