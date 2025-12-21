@@ -18,14 +18,17 @@ class Renderer {
 
   private:
     void init();
+    void recreate_swap_chain();
 
   private:
     struct SyncObject {
         SyncObject(VulkanContext* context, DeferredQueue* deferred_queue,
                    const vk::FenceCreateFlags& flags = {})
-            : semaphore(context, deferred_queue),
+            : render_sem(context, deferred_queue),
+              present_sem(context, deferred_queue),
               fence(context, deferred_queue, flags) {}
-        Semaphore semaphore;
+        Semaphore render_sem;
+        Semaphore present_sem;
         Fence fence;
     };
 
@@ -33,6 +36,8 @@ class Renderer {
     DeferredQueue* deferred_queue_;
     Window* window_;
     uint32_t frame_idx_ = 0;
+    uint32_t image_idx_ = 0;
+    bool frame_buffer_resized_ = false;
     /* Frames in flight*/
     uint32_t max_fif_;
     std::vector<std::unique_ptr<CommandBuffer>> command_buffers_;

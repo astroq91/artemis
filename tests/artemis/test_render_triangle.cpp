@@ -28,17 +28,17 @@ TEST(artemis, render_triangle) {
     DeferredQueue deferred_queue(max_frames_in_flight);
     context.init(&window);
 
-    SwapChain swap_chain(context, &window);
+    SwapChain swap_chain(&context, &window);
     Shader shader(RESOURCES_DIR "/shaders/bin/triangle.spv",
-                  ShaderType::Vertex | ShaderType::Fragment, context,
+                  ShaderType::Vertex | ShaderType::Fragment, &context,
                   &deferred_queue);
     Pipeline pipeline(
+        &context, &deferred_queue,
         PipelineCreateInfo{
             .vertex_shader = &shader,
             .fragment_shader = &shader,
             .swap_chain_image_format = swap_chain.get_image_format(),
-        },
-        context, &deferred_queue);
+        });
     std::vector<unique<Semaphore>> render_semaphores;
     std::vector<unique<Semaphore>> present_semaphores;
     std::vector<unique<Fence>> fences;
@@ -49,11 +49,11 @@ TEST(artemis, render_triangle) {
     }
     for (uint32_t i = 0; i < swap_chain.get_image_count(); i++) {
         render_semaphores.emplace_back(
-            std::make_unique<Semaphore>(context, &deferred_queue));
+            std::make_unique<Semaphore>(&context, &deferred_queue));
         present_semaphores.emplace_back(
-            std::make_unique<Semaphore>(context, &deferred_queue));
+            std::make_unique<Semaphore>(&context, &deferred_queue));
         fences.emplace_back(std::make_unique<Fence>(
-            context, &deferred_queue, vk::FenceCreateFlagBits::eSignaled));
+            &context, &deferred_queue, vk::FenceCreateFlagBits::eSignaled));
     }
 
     uint32_t frame_index = 0;
