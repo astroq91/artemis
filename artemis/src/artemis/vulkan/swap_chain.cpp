@@ -15,13 +15,13 @@ SwapChain::~SwapChain() {
     }
 }
 
-SwapChain::SwapChain(const VulkanContext& context, Window* window)
-    : device_(context.device.get()) {
+SwapChain::SwapChain(VulkanContext* context, Window* window)
+    : device_(context->device.get()) {
 
     auto surface_capabilities =
-        context.physical_device->getSurfaceCapabilitiesKHR(*context.surface);
+        context->physical_device->getSurfaceCapabilitiesKHR(*context->surface);
     surface_format_ = VulkanUtils::choose_swap_surface_format(
-        context.physical_device->getSurfaceFormatsKHR(*context.surface));
+        context->physical_device->getSurfaceFormatsKHR(*context->surface));
     extent_ = VulkanUtils::choose_swap_extent(surface_capabilities,
                                               window->get_handle());
     uint32_t image_count = surface_capabilities.minImageCount + 1;
@@ -31,19 +31,19 @@ SwapChain::SwapChain(const VulkanContext& context, Window* window)
     }
 
     vk::SwapchainCreateInfoKHR create_info(
-        {}, *context.surface, image_count, surface_format_.format,
+        {}, *context->surface, image_count, surface_format_.format,
         surface_format_.colorSpace, extent_, 1,
         vk::ImageUsageFlagBits::eColorAttachment, vk::SharingMode::eExclusive,
         {}, {}, surface_capabilities.currentTransform,
         vk::CompositeAlphaFlagBitsKHR::eOpaque,
         VulkanUtils::choose_present_mode(
-            context.physical_device->getSurfacePresentModesKHR(
-                *context.surface)),
+            context->physical_device->getSurfacePresentModesKHR(
+                *context->surface)),
         vk::True);
 
     uint32_t queue_family_indices[] = {
-        context.queue_family_indices.graphics.value(),
-        context.queue_family_indices.present.value()};
+        context->queue_family_indices.graphics.value(),
+        context->queue_family_indices.present.value()};
 
     if (queue_family_indices[0] != queue_family_indices[1]) {
         create_info.imageSharingMode = vk::SharingMode::eConcurrent;
@@ -53,15 +53,16 @@ SwapChain::SwapChain(const VulkanContext& context, Window* window)
         create_info.imageSharingMode = vk::SharingMode::eExclusive;
     }
 
-    swap_chain_ = context.device->createSwapchainKHR(create_info);
-    images_ = context.device->getSwapchainImagesKHR(swap_chain_);
+    swap_chain_ = context->device->createSwapchainKHR(create_info);
+    images_ = context->device->getSwapchainImagesKHR(swap_chain_);
     image_format_ = surface_format_.format;
 
     for (const auto& image : images_) {
         vk::ImageViewCreateInfo create_info(
             {}, image, vk::ImageViewType::e2D, image_format_, {},
             {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
-        image_views_.emplace_back(context.device->createImageView(create_info));
+        image_views_.emplace_back(
+            context->device->createImageView(create_info));
     }
 }
 

@@ -53,7 +53,7 @@ TEST(artemis, render_triangle) {
         present_semaphores.emplace_back(
             std::make_unique<Semaphore>(context, &deferred_queue));
         fences.emplace_back(std::make_unique<Fence>(
-            vk::FenceCreateFlagBits::eSignaled, context, &deferred_queue));
+            context, &deferred_queue, vk::FenceCreateFlagBits::eSignaled));
     }
 
     uint32_t frame_index = 0;
@@ -64,11 +64,12 @@ TEST(artemis, render_triangle) {
             ;
         fences[frame_index]->reset_fence();
 
-        auto result_value = swap_chain.acquire_next_image(
+        auto [result, image_index] = swap_chain.acquire_next_image(
             UINT64_MAX, present_semaphores[frame_index].get(), nullptr);
-        ASSERT_EQ(result_value.result, vk::Result::eSuccess);
 
-        uint32_t image_index = result_value.value;
+        ASSERT_FALSE(result != vk::Result::eSuccess &&
+                     result != vk::Result::eSuboptimalKHR);
+
         cbs[frame_index]->begin();
         VulkanUtils::transition_image(
             &swap_chain.get_image(image_index),

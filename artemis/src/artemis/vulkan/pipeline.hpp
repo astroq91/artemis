@@ -20,8 +20,8 @@ class Pipeline {
     Pipeline() = default;
     ~Pipeline();
 
-    Pipeline(const PipelineCreateInfo& info, const VulkanContext& context,
-             DeferredQueue* deferred_queue);
+    Pipeline(VulkanContext* context, DeferredQueue* deferred_queue,
+             const PipelineCreateInfo& info);
 
     Pipeline(const Pipeline&) = delete;
     Pipeline& operator=(const Pipeline&) = delete;

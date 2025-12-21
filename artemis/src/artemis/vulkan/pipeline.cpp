@@ -11,9 +11,9 @@ Pipeline::~Pipeline() {
             });
     }
 }
-Pipeline::Pipeline(const PipelineCreateInfo& info, const VulkanContext& context,
-                   DeferredQueue* deferred_queue)
-    : device_(context.device.get()), deferred_queue_(deferred_queue) {
+Pipeline::Pipeline(VulkanContext* context, DeferredQueue* deferred_queue,
+                   const PipelineCreateInfo& info)
+    : device_(context->device.get()), deferred_queue_(deferred_queue) {
     /* SHADERS */
     vk::PipelineShaderStageCreateInfo vert_shader_stage_info(
         {}, vk::ShaderStageFlagBits::eVertex,
@@ -75,7 +75,7 @@ Pipeline::Pipeline(const PipelineCreateInfo& info, const VulkanContext& context,
     /* PIPELINE LAYOUT */
     vk::PipelineLayoutCreateInfo pipeline_layout_info({}, 0, nullptr, 0,
                                                       nullptr);
-    layout_ = context.device->createPipelineLayout(pipeline_layout_info);
+    layout_ = context->device->createPipelineLayout(pipeline_layout_info);
 
     /* PIPELINE CREATION */
     vk::GraphicsPipelineCreateInfo pipeline_info;
@@ -93,7 +93,7 @@ Pipeline::Pipeline(const PipelineCreateInfo& info, const VulkanContext& context,
     pipeline_info.renderPass = nullptr;
 
     pipeline_ =
-        context.device->createGraphicsPipeline(nullptr, pipeline_info).value;
+        context->device->createGraphicsPipeline(nullptr, pipeline_info).value;
 }
 
 } // namespace artemis

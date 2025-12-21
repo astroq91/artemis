@@ -2,9 +2,7 @@
 
 #include "artemis/core/application_context.hpp"
 #include "artemis/core/application_listener.hpp"
-#include "artemis/core/window.hpp"
-#include "artemis/events/event_bus.hpp"
-#include "artemis/vulkan/vulkan_context.hpp"
+
 #include <memory>
 
 namespace artemis {

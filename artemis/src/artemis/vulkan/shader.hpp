@@ -34,7 +34,7 @@ class Shader {
      * @param type All types of shaders contained in the file.
      */
     Shader(const std::string& file, const ShaderType& type,
-           const VulkanContext& context, DeferredQueue* deferred_queue);
+           VulkanContext* context, DeferredQueue* deferred_queue);
 
     /**
      * Get the type(s) contained in the shader.

@@ -14,9 +14,9 @@ class Fence {
             });
         }
     }
-    Fence(const vk::FenceCreateFlags& flags, VulkanContext& context,
-          DeferredQueue* deferred_queue)
-        : device_(context.device.get()), deferred_queue_(deferred_queue) {
+    Fence(VulkanContext* context, DeferredQueue* deferred_queue,
+          const vk::FenceCreateFlags& flags = {})
+        : device_(context->device.get()), deferred_queue_(deferred_queue) {
         fence_ = device_->createFence(vk::FenceCreateInfo(flags));
     }
 

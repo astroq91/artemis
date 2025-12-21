@@ -17,7 +17,7 @@ class SwapChain {
      * @param context The vulkan context.
      * @param window The window handle.
      */
-    SwapChain(const VulkanContext& context, Window* window);
+    SwapChain(VulkanContext* context, Window* window);
 
     vk::Image& get_image(uint32_t index) { return images_[index]; }
     vk::ImageView& get_image_view(uint32_t index) {

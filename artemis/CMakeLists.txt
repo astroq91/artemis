@@ -13,6 +13,7 @@ set(SOURCES
   "${SRC}/core/application.cpp"
   "${SRC}/core/window.cpp"
   "${SRC}/core/log.cpp"
+  "${SRC}/renderer/renderer.cpp"
   "${SRC}/vulkan/vulkan_utils.cpp"
   "${SRC}/vulkan/vulkan_context.cpp"
   "${SRC}/vulkan/swap_chain.cpp"

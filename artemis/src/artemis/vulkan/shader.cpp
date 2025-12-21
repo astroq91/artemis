@@ -12,14 +12,14 @@ Shader::~Shader() {
 }
 
 Shader::Shader(const std::string& file, const ShaderType& type,
-               const VulkanContext& context, DeferredQueue* deferred_queue)
-    : type_(type), device_(context.device.get()),
+               VulkanContext* context, DeferredQueue* deferred_queue)
+    : type_(type), device_(context->device.get()),
       deferred_queue_(deferred_queue) {
 
     auto src = utils::IO::read_file(file);
     vk::ShaderModuleCreateInfo create_info(
         {}, src.size() * sizeof(char),
         reinterpret_cast<const uint32_t*>(src.data()));
-    module_ = context.device->createShaderModule(create_info);
+    module_ = context->device->createShaderModule(create_info);
 }
 } // namespace artemis

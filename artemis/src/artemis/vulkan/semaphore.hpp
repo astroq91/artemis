@@ -14,8 +14,8 @@ class Semaphore {
             });
         }
     }
-    Semaphore(VulkanContext& context, DeferredQueue* deferred_queue)
-        : device_(context.device.get()), deferred_queue_(deferred_queue) {
+    Semaphore(VulkanContext* context, DeferredQueue* deferred_queue)
+        : device_(context->device.get()), deferred_queue_(deferred_queue) {
         semaphore_ = device_->createSemaphore({});
     }
 
