@@ -21,17 +21,6 @@ class Renderer {
     void recreate_swap_chain();
 
   private:
-    struct SyncObject {
-        SyncObject(VulkanContext* context, DeferredQueue* deferred_queue,
-                   const vk::FenceCreateFlags& flags = {})
-            : render_sem(context, deferred_queue),
-              present_sem(context, deferred_queue),
-              fence(context, deferred_queue, flags) {}
-        Semaphore render_sem;
-        Semaphore present_sem;
-        Fence fence;
-    };
-
     VulkanContext* context_;
     DeferredQueue* deferred_queue_;
     Window* window_;
@@ -41,7 +30,9 @@ class Renderer {
     /* Frames in flight*/
     uint32_t max_fif_;
     std::vector<std::unique_ptr<CommandBuffer>> command_buffers_;
-    std::vector<std::unique_ptr<SyncObject>> sync_objects_;
+    std::vector<std::unique_ptr<Semaphore>> render_semaphores_;
+    std::vector<std::unique_ptr<Semaphore>> present_semaphores_;
+    std::vector<std::unique_ptr<Fence>> fences_;
     std::unique_ptr<SwapChain> swap_chain_;
 };
 } // namespace artemis
