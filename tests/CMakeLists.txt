@@ -7,6 +7,7 @@ set(RESOURCES_DIR
 
 add_executable(artemis_tests
   artemis/test_event_bus.cpp
+  artemis/test_instancer.cpp
   artemis/test_render_triangle.cpp
 )
 

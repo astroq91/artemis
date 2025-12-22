@@ -19,7 +19,7 @@ Renderer::Renderer(VulkanContext* context, DeferredQueue* deferred_queue,
                    Window* window, uint32_t max_frames_in_flight)
     : context_(context), deferred_queue_(deferred_queue), window_(window),
       max_fif_(max_frames_in_flight) {
-    init();
+    initialize_resources();
     glfwSetWindowUserPointer(window->get_handle(), &frame_buffer_resized_);
     glfwSetFramebufferSizeCallback(window_->get_handle(),
                                    framebuffer_resized_callback);
@@ -63,9 +63,8 @@ void Renderer::begin_frame() {
     vk::RenderingInfo rendering_info(
         {}, vk::Rect2D({0, 0}, swap_chain_->get_extent()), 1, {}, 1,
         &attachment_info, {}, {});
-    command_buffers_[frame_idx_]->get_vk_command_buffer().beginRendering(
-        &rendering_info);
-    command_buffers_[frame_idx_]->get_vk_command_buffer().endRendering();
+    command_buffers_[frame_idx_]->begin_rendering(rendering_info);
+    command_buffers_[frame_idx_]->end_rendering();
 }
 void Renderer::end_frame() {
     VulkanUtils::transition_image(
@@ -108,7 +107,7 @@ void Renderer::end_frame() {
     frame_idx_ = (frame_idx_ + 1) % max_fif_;
 }
 
-void Renderer::init() {
+void Renderer::initialize_resources() {
     swap_chain_ = std::make_unique<SwapChain>(context_, window_);
 
     command_buffers_.resize(max_fif_);

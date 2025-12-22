@@ -17,7 +17,7 @@ class Renderer {
     void end_frame();
 
   private:
-    void init();
+    void initialize_resources();
     void recreate_swap_chain();
 
   private:

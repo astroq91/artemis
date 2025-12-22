@@ -18,6 +18,12 @@ class CommandBuffer {
 
     vk::CommandBuffer& get_vk_command_buffer() { return command_buffer_; };
 
+    /* Useful wrappers */
+    void begin_rendering(const vk::RenderingInfo& info) {
+        command_buffer_.beginRendering(info);
+    }
+    void end_rendering() { command_buffer_.endRendering(); }
+
   private:
     vk::CommandBuffer command_buffer_{nullptr};
 };
