@@ -11,27 +11,24 @@ uint64_t sort_key_mesh(ResourceHandle mesh_handle) {
 void Instancer::sort() { sort_forward(); }
 void Instancer::add_forward_instance(ResourceHandle mesh_handle,
                                      const glm::mat4& model) {
-    forward_instances_.emplace_back(model);
-    forward_instances_order_.push_back(sort_key_mesh(mesh_handle));
+    forward_instances_.instances.emplace_back(model);
+    forward_instances_.order.push_back(sort_key_mesh(mesh_handle));
 }
 
 void Instancer::sort_forward() {
-    std::vector<size_t> indices(forward_instances_.size());
+    std::vector<size_t> indices(forward_instances_.instances.size());
     std::iota(indices.begin(), indices.end(), 0);
 
     std::sort(
         indices.begin(), indices.end(), [this](const auto& a, const auto& b) {
-            return forward_instances_order_[a] < forward_instances_order_[b];
+            return forward_instances_.order[a] < forward_instances_.order[b];
         });
 
+    auto old_instances = forward_instances_.instances;
+    auto old_order = forward_instances_.order;
     for (size_t i = 0; i < indices.size(); i++) {
-        while (indices[i] != i) {
-            size_t target = indices[i];
-
-            // TODO: Maybe order_?
-            std::swap(forward_instances_[i], forward_instances_[target]);
-            std::swap(indices[i], indices[target]);
-        }
+        forward_instances_.instances[i] = old_instances[indices[i]];
+        forward_instances_.order[i] = old_order[indices[i]];
     }
 }
 } // namespace artemis

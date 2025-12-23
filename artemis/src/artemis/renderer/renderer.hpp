@@ -1,6 +1,8 @@
 #pragma once
 
 #include "artemis/assets/deferred_queue.hpp"
+#include "artemis/core/transform.hpp"
+#include "artemis/renderer/instancer.hpp"
 #include "artemis/vulkan/command_buffer.hpp"
 #include "artemis/vulkan/fence.hpp"
 #include "artemis/vulkan/semaphore.hpp"
@@ -16,6 +18,8 @@ class Renderer {
     void begin_frame();
     void end_frame();
 
+    void draw_cube(const Transform& transform);
+
   private:
     void initialize_resources();
     void recreate_swap_chain();
@@ -24,6 +28,7 @@ class Renderer {
     VulkanContext* context_;
     DeferredQueue* deferred_queue_;
     Window* window_;
+    Instancer instancer_;
     uint32_t frame_idx_ = 0;
     uint32_t image_idx_ = 0;
     bool frame_buffer_resized_ = false;

@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
 #include "artemis/assets/resource_library.hpp"
+#include "artemis/core/log.hpp"
 #include "artemis/renderer/instancer.hpp"
 
 using namespace artemis;
 
 TEST(artemis, test_forward_instancer) {
+    Log::init();
     Instancer instancer;
     ResourceHandle handle1(1, 1);
     ResourceHandle handle2(2, 1);

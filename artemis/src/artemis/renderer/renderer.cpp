@@ -107,6 +107,8 @@ void Renderer::end_frame() {
     frame_idx_ = (frame_idx_ + 1) % max_fif_;
 }
 
+void Renderer::draw_cube(const Transform& transform) {}
+
 void Renderer::initialize_resources() {
     swap_chain_ = std::make_unique<SwapChain>(context_, window_);
 
