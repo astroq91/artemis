@@ -7,50 +7,65 @@
 #include <unordered_map>
 
 namespace artemis {
-struct ResourceHandle {
+template <typename T> struct ResourceHandle {
     size_t index;
     uint32_t version;
 };
 
-class ResourceLibrary {
+template <typename T> class ResourcePool {
   public:
-    ResourceHandle insert_shader(std::unique_ptr<Shader>&& resource) {
-        if (!shaders_free_list_.empty()) {
-            uint32_t index = shaders_free_list_.back();
-            shaders_free_list_.pop_back();
-            shaders_[index].resource = std::move(resource);
-            return ResourceHandle{
-                .index = index,
-                .version = shaders_[index].version,
+    ResourceHandle<T> insert(std::unique_ptr<T>&& resource) {
+        if (free_list_.empty()) {
+            uint32_t idx = free_list_.back();
+            free_list_.pop_back();
+            slots_[idx].resource = std::move(resource);
+            return {
+                .index = idx,
+                .version = slots_[idx].version,
             };
         }
 
-        shaders_.emplace_back(Slot{
-            .resource = std::move(resource),
-            .version = 1,
-        });
-        return ResourceHandle{
-            .index = shaders_.size() - 1,
+        slots_.emplace_back({.resource = std::move(resource), .version = 1});
+        return {
+            .index = slots_.size() - 1,
             .version = 1,
         };
     }
 
-    Shader* get_shader(const ResourceHandle& handle) const {
-        if (handle.index >= shaders_.size() ||
-            handle.version != shaders_[handle.index].version) {
+    T* get(const ResourceHandle<T>& handle) {
+        if (handle.index >= slots_.size() ||
+            handle.version != slots_[handle.index].version) {
             return nullptr;
         }
+        return slots_[handle.index].resource.get();
+    }
 
-        return shaders_[handle.index].resource.get();
+    void erase(const ResourceHandle<T>& handle) {
+        if (handle.index >= slots_.size() ||
+            handle.version != slots_[handle.index].version) {
+            return;
+        }
+
+        slots_[handle.index].resource.reset();
+        slots_[handle.index].version++;
+        free_list_.push_back(handle.index);
     }
 
   private:
-    template <typename T> struct Slot {
+    struct Slot {
         std::unique_ptr<T> resource;
         uint32_t version;
     };
 
-    std::vector<Slot<Shader>> shaders_;
-    std::vector<uint32_t> shaders_free_list_;
+    std::vector<Slot> slots_;
+    std::vector<uint32_t> free_list_;
+};
+
+class ResourceLibrary {
+  public:
+    ResourcePool<Shader>& get_shader_pool() { return shader_pool_; }
+
+  private:
+    ResourcePool<Shader> shader_pool_;
 };
 } // namespace artemis
