@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/spdlog)
-add_subdirectory(vendor/Vulkan-Hpp)
 add_subdirectory(vendor/glm)
 
 set(SRC 

@@ -8,10 +8,10 @@ using namespace artemis;
 TEST(artemis, test_forward_instancer) {
     Log::init();
     Instancer instancer;
-    ResourceHandle handle1(1, 1);
-    ResourceHandle handle2(2, 1);
-    ResourceHandle handle3(3, 1);
-    ResourceHandle handle4(4, 1);
+    ResourceHandle<MeshInstance> handle1(1, 1);
+    ResourceHandle<MeshInstance> handle2(2, 1);
+    ResourceHandle<MeshInstance> handle3(3, 1);
+    ResourceHandle<MeshInstance> handle4(4, 1);
     instancer.add_forward_instance(handle1, glm::mat4(1.0f));
     instancer.add_forward_instance(handle3, glm::mat4(3.0f));
     instancer.add_forward_instance(handle4, glm::mat4(4.0f));
