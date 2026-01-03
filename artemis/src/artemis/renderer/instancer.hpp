@@ -1,6 +1,8 @@
 #pragma once
 #include "artemis/assets/resource_library.hpp"
+#include "artemis/renderer/mesh.hpp"
 #include "glm/glm.hpp"
+
 namespace artemis {
 
 struct MeshInstance {
@@ -15,7 +17,7 @@ template <typename T> struct InstanceCollection {
 class Instancer {
   public:
     void sort();
-    void add_forward_instance(ResourceHandle<MeshInstance> mesh_handle,
+    void add_forward_instance(ResourceHandle<Mesh> mesh_handle,
                               const glm::mat4& model);
     const std::vector<MeshInstance> get_forward_instances() const {
         return forward_instances_.instances;

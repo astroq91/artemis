@@ -269,4 +269,16 @@ void VulkanUtils::transition_image(vk::Image* image,
     vk::DependencyInfo dependency_info({}, 0, {}, 0, {}, 1, &barrier);
     command_buffer->pipelineBarrier2(dependency_info);
 }
+uint32_t find_memory_type(vk::PhysicalDevice* device, uint32_t type_filter,
+                          vk::MemoryPropertyFlags properties) {
+    auto device_properites = device->getMemoryProperties();
+    for (uint32_t i = 0; i < device_properites.memoryTypeCount; i++) {
+        if ((type_filter & (1 << i)) &&
+            (device_properites.memoryTypes[i].propertyFlags & properties) ==
+                properties) {
+            return i;
+        }
+    }
+    throw std::runtime_error("Failed to find suitable memory type.");
+}
 } // namespace artemis

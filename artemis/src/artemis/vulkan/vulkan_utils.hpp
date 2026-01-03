@@ -66,5 +66,9 @@ class VulkanUtils {
     static void transition_image(vk::Image* image,
                                  vk::CommandBuffer* command_buffer,
                                  const TransitionImageInfo& info);
+
+    static uint32_t find_memory_type(vk::PhysicalDevice* device,
+                                     uint32_t type_filter,
+                                     vk::MemoryPropertyFlags properties);
 };
 }; // namespace artemis
