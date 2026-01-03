@@ -35,7 +35,19 @@ Pipeline::Pipeline(VulkanContext* context, DeferredQueue* deferred_queue,
                                                      dynamic_states.data());
 
     /* VERTEX INPUT */
-    vk::PipelineVertexInputStateCreateInfo vertex_input_info;
+    std::vector<vk::VertexInputBindingDescription> vert_binding_descs(
+        info.vertex_buffer_descs.size());
+    std::vector<vk::VertexInputAttributeDescription> vert_attrib_descs;
+    for (size_t i = 0; i < info.vertex_buffer_descs.size(); i++) {
+        auto binding_desc = info.vertex_buffer_descs[i];
+        auto& attribs = info.vertex_buffer_descs[i].get_attributes();
+        vert_binding_descs[i] = info.vertex_buffer_descs[i].get_binding();
+        vert_attrib_descs.insert(vert_attrib_descs.end(), attribs.begin(),
+                                 attribs.end());
+    }
+    vk::PipelineVertexInputStateCreateInfo vertex_input_info(
+        {}, info.vertex_buffer_descs.size(), vert_binding_descs.data(),
+        vert_attrib_descs.size(), vert_attrib_descs.data());
 
     /* INPUT ASSEMBLY */
     vk::PipelineInputAssemblyStateCreateInfo input_assembly(

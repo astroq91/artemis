@@ -5,7 +5,10 @@
 #include "vulkan/vulkan.hpp"
 
 namespace artemis {
-IndexBuffer::IndexBuffer(VulkanContext* context, void* indices, size_t size) {
+IndexBuffer::IndexBuffer(VulkanContext* context, void* indices,
+                         size_t index_count, size_t index_size)
+    : index_count_(index_count) {
+    auto size = index_count * index_size;
     Buffer staging_buffer(context, size, vk::BufferUsageFlagBits::eTransferSrc,
                           vk::MemoryPropertyFlagBits::eHostVisible |
                               vk::MemoryPropertyFlagBits::eHostCoherent);

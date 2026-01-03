@@ -16,7 +16,7 @@ struct Transform {
         is_dirty_ = true;
     }
 
-    const glm::mat4 get_mat4() {
+    const glm::mat4& get_mat4() {
         if (is_dirty_) {
             matrix_ = glm::scale(glm::mat4(1.0f), scale_) *
                       glm::toMat4(rotation_) *

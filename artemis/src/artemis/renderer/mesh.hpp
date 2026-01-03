@@ -7,9 +7,9 @@ class Mesh {
   public:
     Mesh() = default;
     Mesh(VulkanContext* context_, void* vertices, size_t vertices_size,
-         void* indices, size_t indices_size) {
+         void* indices, size_t index_count, size_t index_size) {
         vb_ = VertexBuffer(context_, vertices, vertices_size);
-        ib_ = IndexBuffer(context_, indices, indices_size);
+        ib_ = IndexBuffer(context_, indices, index_count, index_size);
     }
 
     VertexBuffer& get_vertex_buffer() { return vb_; }

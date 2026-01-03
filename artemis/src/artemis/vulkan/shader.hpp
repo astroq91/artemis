@@ -33,8 +33,8 @@ class Shader {
      * @param file The path to the given shader file.
      * @param type All types of shaders contained in the file.
      */
-    Shader(const std::string& file, const ShaderType& type,
-           VulkanContext* context, DeferredQueue* deferred_queue);
+    Shader(VulkanContext* context, DeferredQueue* deferred_queue,
+           const std::string& file, const ShaderType& type);
 
     /**
      * Get the type(s) contained in the shader.

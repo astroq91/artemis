@@ -11,8 +11,8 @@ Shader::~Shader() {
     }
 }
 
-Shader::Shader(const std::string& file, const ShaderType& type,
-               VulkanContext* context, DeferredQueue* deferred_queue)
+Shader::Shader(VulkanContext* context, DeferredQueue* deferred_queue,
+               const std::string& file, const ShaderType& type)
     : type_(type), device_(context->device.get()),
       deferred_queue_(deferred_queue) {
 

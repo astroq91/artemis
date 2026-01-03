@@ -4,15 +4,21 @@
 
 namespace artemis {
 
-uint64_t sort_key_mesh(ResourceHandle<Mesh> mesh_handle) {
-    return static_cast<uint64_t>(mesh_handle.index) << 50;
+uint64_t sort_key_forward_instance(InstanceInfo info) {
+    return static_cast<uint64_t>(info.mesh_handle.index) << 50;
 }
 
 void Instancer::sort() { sort_forward(); }
+void Instancer::clear() {
+    forward_instances_.instances.clear();
+    forward_instances_.order.clear();
+}
+
 void Instancer::add_forward_instance(ResourceHandle<Mesh> mesh_handle,
                                      const glm::mat4& model) {
     forward_instances_.instances.emplace_back(model);
-    forward_instances_.order.push_back(sort_key_mesh(mesh_handle));
+    forward_instances_.order.push_back(
+        InstanceInfo{.mesh_handle = mesh_handle});
 }
 
 void Instancer::sort_forward() {
@@ -21,7 +27,8 @@ void Instancer::sort_forward() {
 
     std::sort(
         indices.begin(), indices.end(), [this](const auto& a, const auto& b) {
-            return forward_instances_.order[a] < forward_instances_.order[b];
+            return sort_key_forward_instance(forward_instances_.order[a]) <
+                   sort_key_forward_instance(forward_instances_.order[b]);
         });
 
     auto old_instances = forward_instances_.instances;

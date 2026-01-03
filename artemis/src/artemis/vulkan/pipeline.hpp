@@ -3,6 +3,7 @@
 #include "artemis/assets/deferred_queue.hpp"
 #include "artemis/vulkan/shader.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
+#include "artemis/vulkan/vertex_buffer_description.hpp"
 #include <vulkan/vulkan.hpp>
 namespace artemis {
 
@@ -13,6 +14,7 @@ struct PipelineCreateInfo {
     const Shader* vertex_shader;
     const Shader* fragment_shader;
     vk::Format swap_chain_image_format;
+    std::vector<VertexBufferDescription> vertex_buffer_descs;
 };
 
 class Pipeline {

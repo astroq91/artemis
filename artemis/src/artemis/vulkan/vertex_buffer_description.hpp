@@ -14,9 +14,18 @@ struct VertexAttributeDescription {
 
 class VertexBufferDescription {
   public:
+    VertexBufferDescription() = default;
     VertexBufferDescription(
         uint32_t binding, uint32_t stride, vk::VertexInputRate input_rate,
         const std::vector<VertexAttributeDescription>& attributes);
+    vk::VertexInputBindingDescription get_binding() const {
+        return binding_desc_;
+    }
+
+    const std::vector<vk::VertexInputAttributeDescription>&
+    get_attributes() const {
+        return attrib_descs_;
+    }
 
   private:
     vk::VertexInputBindingDescription binding_desc_;
