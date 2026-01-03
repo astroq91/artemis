@@ -63,6 +63,7 @@ target_compile_definitions(artemis
 target_add_slang_shaders(artemis_shaders 
   SOURCES
     "${SHADERS_DIR}/triangle.slang"
+    "${SHADERS_DIR}/forward.slang"
 )
 
 add_dependencies(artemis artemis_shaders)

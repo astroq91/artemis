@@ -9,6 +9,7 @@ class Buffer {
     Buffer() = default;
     Buffer(VulkanContext* context, DeferredQueue* deferred_queue, size_t size,
            vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
+    ~Buffer();
 
     vk::Buffer get_vk_buffer() { return buffer_; }
     vk::DeviceMemory get_vk_buffer_memory() { return buffer_memory_; }

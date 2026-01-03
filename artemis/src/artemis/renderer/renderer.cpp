@@ -31,9 +31,11 @@ Renderer::Renderer(VulkanContext* context, DeferredQueue* deferred_queue,
     create_default_meshes();
     create_pipelines();
 
+    current_cmd_buf_ = command_buffers_[frame_idx_].get();
     glfwSetWindowUserPointer(window->get_handle(), &frame_buffer_resized_);
     glfwSetFramebufferSizeCallback(window_->get_handle(),
                                    framebuffer_resized_callback);
+    Log::get()->debug("Renderer initialized.");
 }
 void Renderer::begin_frame() {
     current_cmd_buf_ = command_buffers_[frame_idx_].get();
@@ -228,8 +230,6 @@ void Renderer::create_resources() {
     forward_instance_buffer_ = std::make_unique<VertexBuffer>(
         context_, deferred_queue_,
         k_max_forward_instances * sizeof(MeshInstance));
-
-    Log::get()->debug("Renderer initialized.");
 }
 void Renderer::create_pipelines() {
     Shader forward_shader(context_, deferred_queue_,

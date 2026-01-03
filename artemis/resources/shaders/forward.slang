@@ -1,5 +1,9 @@
 struct VSInput {
   float3 pos;
+  float4 model0;
+  float4 model1;
+  float4 model2;
+  float4 model3;
 };
 
 struct VSOutput {
@@ -9,7 +13,15 @@ struct VSOutput {
 [shader("vertex")]
 VSOutput vert_main(VSInput input) {
   VSOutput output;
-  output.pos = float4(input.pos, 1.0);
+
+  float4x4 model = float4x4(
+    input.model0,
+    input.model1,
+    input.model2,
+    input.model3,
+  );
+
+  output.pos = mul(model, float4(input.pos, 1.0));
   return output;
 }
 

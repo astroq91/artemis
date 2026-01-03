@@ -16,9 +16,8 @@ VertexBuffer::VertexBuffer(VulkanContext* context,
 }
 VertexBuffer::VertexBuffer(VulkanContext* context,
                            DeferredQueue* deferred_queue,
-                           CommandBuffer* cmd_buf, void* vertices,
-                           size_t size) {
-    VertexBuffer(context, deferred_queue, size);
+                           CommandBuffer* cmd_buf, void* vertices, size_t size)
+    : VertexBuffer(context, deferred_queue, size) {
     insert(cmd_buf, vertices, size);
 }
 void VertexBuffer::insert(CommandBuffer* cmd_buf, void* vertices, size_t size) {

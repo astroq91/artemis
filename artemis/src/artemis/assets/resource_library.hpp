@@ -16,7 +16,7 @@ template <typename T> struct ResourceHandle {
 template <typename T> class ResourcePool {
   public:
     ResourceHandle<T> insert(std::unique_ptr<T>&& resource) {
-        if (free_list_.empty()) {
+        if (!free_list_.empty()) {
             uint32_t idx = free_list_.back();
             free_list_.pop_back();
             slots_[idx].resource = std::move(resource);

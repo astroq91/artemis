@@ -15,10 +15,10 @@ void Application::run() {
     context_.event_bus = std::make_unique<EventBus>();
     context_.window = std::make_unique<Window>();
     context_.vulkan.init(context_.window.get());
+    context_.resource_library = std::make_unique<ResourceLibrary>();
     context_.renderer = std::make_unique<Renderer>(
         &context_.vulkan, context_.deferred_queue.get(), context_.window.get(),
         context_.resource_library.get(), k_max_frames_in_flight);
-    context_.resource_library = std::make_unique<ResourceLibrary>();
 
     listener_init();
     while (running_) {

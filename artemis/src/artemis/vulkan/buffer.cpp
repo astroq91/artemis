@@ -7,6 +7,18 @@
 #include "artemis/vulkan/vulkan_utils.hpp"
 #include <cstdint>
 namespace artemis {
+
+Buffer::~Buffer() {
+    if (buffer_ != nullptr) {
+        deferred_queue_->enqueue([device = context_->device.get(),
+                                  buffer = buffer_,
+                                  buffer_memory = buffer_memory_]() {
+            device->destroyBuffer(buffer);
+            device->freeMemory(buffer_memory);
+        });
+    }
+}
+
 Buffer::Buffer(VulkanContext* context, DeferredQueue* deferred_queue,
                size_t size, vk::BufferUsageFlags usage,
                vk::MemoryPropertyFlags properties)
@@ -53,16 +65,10 @@ void Buffer::copy_into(CommandBuffer* command_buffer, Buffer& other) const {
                                barrier, {});
 
     if (command_buf_alloc) {
-        Fence fence(context_, deferred_queue_);
         command_buffer->end();
         context_->graphics_queue->submit(
             vk::SubmitInfo({}, {}, {}, 1, &vk_cmd_buf));
-        if (context_->device->waitForFences(fence.get_vk_fence(), vk::True,
-                                            UINT64_MAX) !=
-            vk::Result::eSuccess) {
-            Log::get()->error(
-                "(vk) Failed to wait for fence during buffer copy.");
-        }
+        context_->device->waitIdle();
         delete command_buffer;
     }
 }

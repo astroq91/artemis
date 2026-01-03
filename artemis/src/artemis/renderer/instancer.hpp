@@ -15,15 +15,15 @@ const VertexBufferDescription k_mesh_instance_desc(
     k_mesh_instance_binding, sizeof(MeshInstance),
     vk::VertexInputRate::eInstance,
     {
-        {.type = VertexAttributeType::Float4, .location = 0, .offset = 0},
-        {.type = VertexAttributeType::Float4,
-         .location = 1,
-         .offset = sizeof(glm::vec4)},
+        {.type = VertexAttributeType::Float4, .location = 1, .offset = 0},
         {.type = VertexAttributeType::Float4,
          .location = 2,
-         .offset = 2 * sizeof(glm::vec4)},
+         .offset = sizeof(glm::vec4)},
         {.type = VertexAttributeType::Float4,
          .location = 3,
+         .offset = 2 * sizeof(glm::vec4)},
+        {.type = VertexAttributeType::Float4,
+         .location = 4,
          .offset = 3 * sizeof(glm::vec4)},
     });
 
