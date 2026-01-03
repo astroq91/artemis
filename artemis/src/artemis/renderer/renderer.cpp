@@ -27,7 +27,6 @@ Renderer::Renderer(VulkanContext* context, DeferredQueue* deferred_queue,
                    uint32_t max_frames_in_flight)
     : context_(context), deferred_queue_(deferred_queue), window_(window),
       resource_library_(resource_library), max_fif_(max_frames_in_flight) {
-
     create_resources();
     create_default_meshes();
     create_pipelines();
@@ -37,7 +36,7 @@ Renderer::Renderer(VulkanContext* context, DeferredQueue* deferred_queue,
                                    framebuffer_resized_callback);
 }
 void Renderer::begin_frame() {
-    current_cmd_buffer_ = command_buffers_[frame_idx_].get();
+    current_cmd_buf_ = command_buffers_[frame_idx_].get();
     fences_[frame_idx_]->wait(UINT64_MAX);
     auto [result, image_idx] = swap_chain_->acquire_next_image(
         UINT64_MAX, present_semaphores_[frame_idx_].get(), nullptr);
@@ -188,7 +187,7 @@ void Renderer::create_default_meshes() {
     };
 
     auto cube = std::make_unique<Mesh>(
-        context_, cube_vertices.data(),
+        context_, deferred_queue_, current_cmd_buf_, cube_vertices.data(),
         sizeof(ForwardPipelineVertex) * cube_vertices.size(),
         cube_indices.data(), cube_indices.size(), sizeof(uint32_t));
     cube_mesh_handle_ =
@@ -227,7 +226,8 @@ void Renderer::create_resources() {
     }
 
     forward_instance_buffer_ = std::make_unique<VertexBuffer>(
-        context_, k_max_forward_instances * sizeof(MeshInstance));
+        context_, deferred_queue_,
+        k_max_forward_instances * sizeof(MeshInstance));
 
     Log::get()->debug("Renderer initialized.");
 }
@@ -242,7 +242,8 @@ void Renderer::create_pipelines() {
             .vertex_shader = &forward_shader,
             .fragment_shader = &forward_shader,
             .swap_chain_image_format = swap_chain_->get_image_format(),
-            .vertex_buffer_descs = {forward_pipeline_mesh_desc_},
+            .vertex_buffer_descs = {forward_pipeline_mesh_desc_, // 0
+                                    k_mesh_instance_desc},       // 1
         });
 }
 
@@ -273,12 +274,19 @@ void Renderer::draw_forward_instances() {
         return;
     }
 
-    forward_instance_buffer_->insert(forward_instances.instances.data(),
-                                     sizeof(MeshInstance) *
-                                         forward_instances.instances.size());
+    forward_instance_buffer_->insert(
+        current_cmd_buf_, forward_instances.instances.data(),
+        sizeof(MeshInstance) * forward_instances.instances.size());
+    auto cmd_buf = current_cmd_buf_->get_vk_command_buffer();
 
-    auto cmd_buf = current_cmd_buffer_->get_vk_command_buffer();
+    // Bind the instance buffer
+    vk::DeviceSize instance_offset = 0;
+    cmd_buf.bindVertexBuffers(
+        k_mesh_instance_binding,
+        forward_instance_buffer_->get_buffer().get_vk_buffer(),
+        instance_offset);
 
+    // Bind the pipeline
     cmd_buf.bindPipeline(vk::PipelineBindPoint::eGraphics,
                          forward_pipeline_->get_vk_pipeline());
 
@@ -289,17 +297,11 @@ void Renderer::draw_forward_instances() {
 
         auto mesh = resource_library_->get_mesh_pool().get(mesh_handle);
 
-        std::array<vk::Buffer, 2> vertex_buffers = {
-            mesh->get_vertex_buffer().get_buffer().get_vk_buffer(),
-            forward_instance_buffer_->get_buffer().get_vk_buffer(),
-        };
+        vk::DeviceSize vb_offset = sizeof(MeshInstance) * first_instance;
 
-        std::array<vk::DeviceSize, 2> offsets = {
-            0,
-            sizeof(MeshInstance) * first_instance,
-        };
-
-        cmd_buf.bindVertexBuffers(0, vertex_buffers, offsets);
+        cmd_buf.bindVertexBuffers(
+            0, mesh->get_vertex_buffer().get_buffer().get_vk_buffer(),
+            vb_offset);
         cmd_buf.bindIndexBuffer(
             mesh->get_index_buffer().get_buffer().get_vk_buffer(), 0,
             vk::IndexType::eUint32);

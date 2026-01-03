@@ -1,6 +1,7 @@
 #pragma once
 #include "artemis/assets/resource_library.hpp"
 #include "artemis/renderer/mesh.hpp"
+#include "artemis/vulkan/vertex_buffer_description.hpp"
 #include "glm/glm.hpp"
 
 namespace artemis {
@@ -8,6 +9,23 @@ namespace artemis {
 struct MeshInstance {
     alignas(16) glm::mat4 model;
 };
+
+constexpr size_t k_mesh_instance_binding = 1;
+const VertexBufferDescription k_mesh_instance_desc(
+    k_mesh_instance_binding, sizeof(MeshInstance),
+    vk::VertexInputRate::eInstance,
+    {
+        {.type = VertexAttributeType::Float4, .location = 0, .offset = 0},
+        {.type = VertexAttributeType::Float4,
+         .location = 1,
+         .offset = sizeof(glm::vec4)},
+        {.type = VertexAttributeType::Float4,
+         .location = 2,
+         .offset = 2 * sizeof(glm::vec4)},
+        {.type = VertexAttributeType::Float4,
+         .location = 3,
+         .offset = 3 * sizeof(glm::vec4)},
+    });
 
 struct InstanceInfo {
     ResourceHandle<Mesh> mesh_handle;

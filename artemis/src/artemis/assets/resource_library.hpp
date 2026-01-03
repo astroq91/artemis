@@ -26,7 +26,7 @@ template <typename T> class ResourcePool {
             };
         }
 
-        slots_.emplace_back({.resource = std::move(resource), .version = 1});
+        slots_.push_back(Slot{.resource = std::move(resource), .version = 1});
         return {
             .index = slots_.size() - 1,
             .version = 1,

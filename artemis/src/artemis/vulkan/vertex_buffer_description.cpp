@@ -1,4 +1,5 @@
 #include "vertex_buffer_description.hpp"
+#include "artemis/core/log.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace artemis {
@@ -12,6 +13,10 @@ vk::Format get_format(VertexAttributeType type) {
         return vk::Format::eR32G32B32Sfloat;
     case VertexAttributeType::Float4:
         return vk::Format::eR32G32B32A32Sfloat;
+    default: {
+        Log::get()->error("(vk) Vertex attribute type not handled.");
+        return vk::Format::eUndefined;
+    }
     }
 }
 VertexBufferDescription::VertexBufferDescription(

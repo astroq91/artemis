@@ -49,7 +49,7 @@ class Renderer {
     uint32_t max_fif_;
 
     /* Vulkan objects */
-    CommandBuffer* current_cmd_buffer_;
+    CommandBuffer* current_cmd_buf_;
     std::vector<std::unique_ptr<CommandBuffer>> command_buffers_;
     std::vector<std::unique_ptr<Semaphore>> render_semaphores_;
     std::vector<std::unique_ptr<Semaphore>> present_semaphores_;
