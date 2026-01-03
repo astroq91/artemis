@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "artemis/core/log.hpp"
 #include "artemis/vulkan/pipeline.hpp"
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <vulkan/vulkan_structs.hpp>
@@ -16,9 +17,10 @@ static void framebuffer_resized_callback(GLFWwindow* window, int width,
 }
 
 Renderer::Renderer(VulkanContext* context, DeferredQueue* deferred_queue,
-                   Window* window, uint32_t max_frames_in_flight)
+                   Window* window, ResourceLibrary* resource_library,
+                   uint32_t max_frames_in_flight)
     : context_(context), deferred_queue_(deferred_queue), window_(window),
-      max_fif_(max_frames_in_flight) {
+      resource_library_(resource_library), max_fif_(max_frames_in_flight) {
     initialize_resources();
     glfwSetWindowUserPointer(window->get_handle(), &frame_buffer_resized_);
     glfwSetFramebufferSizeCallback(window_->get_handle(),
@@ -109,6 +111,8 @@ void Renderer::end_frame() {
 
 void Renderer::draw_cube(const Transform& transform) {}
 
+void Renderer::create_default_meshes() {}
+
 void Renderer::initialize_resources() {
     swap_chain_ = std::make_unique<SwapChain>(context_, window_);
 
@@ -118,7 +122,7 @@ void Renderer::initialize_resources() {
     fences_.resize(max_fif_);
 
     for (size_t i = 0; i < max_fif_; i++) {
-        command_buffers_[i] = std::make_unique<CommandBuffer>(*context_);
+        command_buffers_[i] = std::make_unique<CommandBuffer>(context_);
         fences_[i] = std::make_unique<Fence>(
             context_, deferred_queue_, vk::FenceCreateFlagBits::eSignaled);
         present_semaphores_[i] =

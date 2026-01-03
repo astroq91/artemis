@@ -4,10 +4,10 @@
 #include <vulkan/vulkan.hpp>
 #include <cstddef>
 namespace artemis {
-class VertexBuffer {
+class IndexBuffer {
   public:
-    VertexBuffer();
-    VertexBuffer(VulkanContext* context, void* vertices, size_t size);
+    IndexBuffer();
+    IndexBuffer(VulkanContext* context, void* indices, size_t size);
 
   private:
     Buffer buffer_;

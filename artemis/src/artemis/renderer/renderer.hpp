@@ -14,13 +14,15 @@ class Renderer {
   public:
     Renderer() = default;
     Renderer(VulkanContext* context, DeferredQueue* deferred_queue,
-             Window* window, uint32_t max_frames_in_flight);
+             Window* window, ResourceLibrary* resource_library,
+             uint32_t max_frames_in_flight);
     void begin_frame();
     void end_frame();
 
     void draw_cube(const Transform& transform);
 
   private:
+    void create_default_meshes();
     void initialize_resources();
     void recreate_swap_chain();
 
@@ -28,7 +30,10 @@ class Renderer {
     VulkanContext* context_;
     DeferredQueue* deferred_queue_;
     Window* window_;
+    ResourceLibrary* resource_library_;
+
     Instancer instancer_;
+
     uint32_t frame_idx_ = 0;
     uint32_t image_idx_ = 0;
     bool frame_buffer_resized_ = false;

@@ -1,11 +1,11 @@
 #include "command_buffer.hpp"
 
 namespace artemis {
-CommandBuffer::CommandBuffer(const VulkanContext& context) {
+CommandBuffer::CommandBuffer(VulkanContext* context) {
     vk::CommandBufferAllocateInfo alloc_info(
-        *context.command_pool, vk::CommandBufferLevel::ePrimary, 1);
+        *context->command_pool, vk::CommandBufferLevel::ePrimary, 1);
     command_buffer_ =
-        std::move(context.device->allocateCommandBuffers(alloc_info).front());
+        std::move(context->device->allocateCommandBuffers(alloc_info).front());
 }
 
 void CommandBuffer::begin(const vk::CommandBufferBeginInfo& info) {

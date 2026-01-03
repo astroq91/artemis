@@ -7,7 +7,7 @@ namespace artemis {
 class CommandBuffer {
   public:
     CommandBuffer() = default;
-    CommandBuffer(const VulkanContext& context);
+    CommandBuffer(VulkanContext* context);
 
     // Delete copy constructor and assignment
     CommandBuffer(const CommandBuffer&) = delete;

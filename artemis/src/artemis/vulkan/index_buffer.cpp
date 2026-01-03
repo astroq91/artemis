@@ -1,21 +1,20 @@
-#include "vertex_buffer.hpp"
+#include "index_buffer.hpp"
 #include "artemis/core/log.hpp"
 #include "artemis/vulkan/buffer.hpp"
 #include "artemis/vulkan/vulkan_utils.hpp"
 #include "vulkan/vulkan.hpp"
 
 namespace artemis {
-VertexBuffer::VertexBuffer(VulkanContext* context, void* vertices,
-                           size_t size) {
+IndexBuffer::IndexBuffer(VulkanContext* context, void* indices, size_t size) {
     Buffer staging_buffer(context, size, vk::BufferUsageFlagBits::eTransferSrc,
                           vk::MemoryPropertyFlagBits::eHostVisible |
                               vk::MemoryPropertyFlagBits::eHostCoherent);
     void* mapped_staging = staging_buffer.map();
-    memcpy(mapped_staging, vertices, size);
+    memcpy(mapped_staging, indices, size);
     staging_buffer.unmap();
 
     buffer_ = Buffer(context, size,
-                     vk::BufferUsageFlagBits::eVertexBuffer |
+                     vk::BufferUsageFlagBits::eIndexBuffer |
                          vk::BufferUsageFlagBits::eTransferDst,
                      vk::MemoryPropertyFlagBits::eDeviceLocal);
 

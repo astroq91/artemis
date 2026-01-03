@@ -18,6 +18,7 @@ void Application::run() {
     context_.renderer = std::make_unique<Renderer>(
         &context_.vulkan, context_.deferred_queue.get(), context_.window.get(),
         k_max_frames_in_flight);
+    context_.resource_library = std::make_unique<ResourceLibrary>();
 
     listener_init();
     while (running_) {

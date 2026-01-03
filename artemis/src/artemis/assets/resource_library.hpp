@@ -1,4 +1,5 @@
 #pragma once
+#include "artemis/renderer/mesh.hpp"
 #include "artemis/vulkan/shader.hpp"
 #include <cstdint>
 #include <functional>
@@ -64,8 +65,10 @@ template <typename T> class ResourcePool {
 class ResourceLibrary {
   public:
     ResourcePool<Shader>& get_shader_pool() { return shader_pool_; }
+    ResourcePool<Mesh>& get_mesh_pool() { return mesh_pool_; }
 
   private:
     ResourcePool<Shader> shader_pool_;
+    ResourcePool<Mesh> mesh_pool_;
 };
 } // namespace artemis
