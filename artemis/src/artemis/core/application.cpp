@@ -11,7 +11,7 @@ void Application::run() {
     Log::init();
     context_.max_frames_in_flight = k_max_frames_in_flight;
     context_.deferred_queue =
-        std::make_unique<DeferredQueue>(context_.max_frames_in_flight);
+        std::make_unique<DeferredQueue>(k_max_frames_in_flight);
     context_.event_bus = std::make_unique<EventBus>();
     context_.window = std::make_unique<Window>();
     context_.vulkan.init(context_.window.get());
@@ -22,13 +22,14 @@ void Application::run() {
 
     listener_init();
     while (running_) {
-        // Important to flush the queue before letting anything first enqueue
-        // anything
-        context_.deferred_queue->flush();
         context_.renderer->begin_frame();
+        // Important to flush the queue after the frame has begun.
+        // This ensures the command buffer is not in use
+        context_.deferred_queue->flush();
         listener_->on_update(1.0f);
         context_.window->on_update();
         context_.renderer->end_frame();
+        context_.deferred_queue->update_frame_index();
         if (context_.window->should_close()) {
             running_ = false;
         }

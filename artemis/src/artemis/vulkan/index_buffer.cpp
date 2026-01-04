@@ -9,7 +9,11 @@ namespace artemis {
 IndexBuffer::IndexBuffer(VulkanContext* context, DeferredQueue* deferred_queue,
                          CommandBuffer* cmd_buf, void* indices,
                          size_t index_count, size_t index_size)
-    : index_count_(index_count) {
+    : buffer_(context, deferred_queue, index_count * index_size,
+              vk::BufferUsageFlagBits::eIndexBuffer |
+                  vk::BufferUsageFlagBits::eTransferDst,
+              vk::MemoryPropertyFlagBits::eDeviceLocal),
+      index_count_(index_count) {
     auto size = index_count * index_size;
     Buffer staging_buffer(context, deferred_queue, size,
                           vk::BufferUsageFlagBits::eTransferSrc,
@@ -18,11 +22,6 @@ IndexBuffer::IndexBuffer(VulkanContext* context, DeferredQueue* deferred_queue,
     void* mapped_staging = staging_buffer.map();
     memcpy(mapped_staging, indices, size);
     staging_buffer.unmap();
-
-    buffer_ = Buffer(context, deferred_queue, size,
-                     vk::BufferUsageFlagBits::eIndexBuffer |
-                         vk::BufferUsageFlagBits::eTransferDst,
-                     vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     staging_buffer.copy_into(cmd_buf, buffer_);
 }

@@ -70,20 +70,13 @@ void Renderer::begin_frame() {
             .dstStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,
         });
 
-    vk::ClearValue clear_color = vk::ClearColorValue(0.0f, 0.0f, 1.0f, 1.0f);
-    vk::RenderingAttachmentInfo attachment_info(
-        swap_chain_->get_image_view(image_idx_),
-        vk::ImageLayout::eColorAttachmentOptimal, {}, {}, {},
-        vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
-        clear_color);
-    vk::RenderingInfo rendering_info(
-        {}, vk::Rect2D({0, 0}, swap_chain_->get_extent()), 1, {}, 1,
-        &attachment_info, {}, {});
-    command_buffers_[frame_idx_]->begin_rendering(rendering_info);
-    command_buffers_[frame_idx_]->end_rendering();
+    // Clear the screen
+    begin_rendering({});
+    end_rendering();
 }
 void Renderer::end_frame() {
     draw_forward_instances();
+
     VulkanUtils::transition_image(
         &swap_chain_->get_image(image_idx_),
         &command_buffers_[frame_idx_]->get_vk_command_buffer(),
@@ -124,11 +117,29 @@ void Renderer::end_frame() {
     frame_idx_ = (frame_idx_ + 1) % max_fif_;
 }
 
+void Renderer::begin_rendering(const BeginRenderingInfo& info) {
+    vk::ImageView image_view = info.image_view;
+    if (image_view == nullptr) {
+        image_view = swap_chain_->get_image_view(image_idx_);
+    }
+    vk::RenderingAttachmentInfo attachment_info(
+        image_view, info.image_layout, {}, {}, {}, info.load_op, info.store_op,
+        info.clear_color);
+    auto viewport_size = vk::Rect2D({0, 0}, swap_chain_->get_extent());
+    vk::Viewport viewport(0, 0, swap_chain_->get_extent().width,
+                          swap_chain_->get_extent().height, 0.0f, 1.0f);
+    current_cmd_buf_->get_vk_command_buffer().setViewport(0, viewport);
+    current_cmd_buf_->get_vk_command_buffer().setScissor(0, viewport_size);
+
+    vk::RenderingInfo rendering_info({}, viewport_size, 1, {}, 1,
+                                     &attachment_info, {}, {});
+    current_cmd_buf_->begin_rendering(rendering_info);
+}
+void Renderer::end_rendering() { current_cmd_buf_->end_rendering(); }
+
 void Renderer::draw_cube(Transform& transform) {
     instancer_.add_forward_instance(cube_mesh_handle_, transform.get_mat4());
 }
-
-void Renderer::submit_instances() {}
 
 void Renderer::create_default_meshes() {
     std::vector<ForwardPipelineVertex> cube_vertices = {
@@ -214,6 +225,7 @@ void Renderer::create_resources() {
     render_semaphores_.resize(swap_chain_->get_image_count());
     present_semaphores_.resize(max_fif_);
     fences_.resize(max_fif_);
+    forward_instance_buffers_.resize(max_fif_);
 
     for (size_t i = 0; i < max_fif_; i++) {
         command_buffers_[i] = std::make_unique<CommandBuffer>(context_);
@@ -221,15 +233,15 @@ void Renderer::create_resources() {
             context_, deferred_queue_, vk::FenceCreateFlagBits::eSignaled);
         present_semaphores_[i] =
             std::make_unique<Semaphore>(context_, deferred_queue_);
+
+        forward_instance_buffers_[i] = std::make_unique<VertexBuffer>(
+            context_, deferred_queue_,
+            k_max_forward_instances * sizeof(MeshInstance));
     }
     for (size_t i = 0; i < swap_chain_->get_image_count(); i++) {
         render_semaphores_[i] =
             std::make_unique<Semaphore>(context_, deferred_queue_);
     }
-
-    forward_instance_buffer_ = std::make_unique<VertexBuffer>(
-        context_, deferred_queue_,
-        k_max_forward_instances * sizeof(MeshInstance));
 }
 void Renderer::create_pipelines() {
     Shader forward_shader(context_, deferred_queue_,
@@ -274,16 +286,17 @@ void Renderer::draw_forward_instances() {
         return;
     }
 
-    forward_instance_buffer_->insert(
+    forward_instance_buffers_[frame_idx_]->insert(
         current_cmd_buf_, forward_instances.instances.data(),
         sizeof(MeshInstance) * forward_instances.instances.size());
     auto cmd_buf = current_cmd_buf_->get_vk_command_buffer();
 
+    begin_rendering({});
     // Bind the instance buffer
     vk::DeviceSize instance_offset = 0;
     cmd_buf.bindVertexBuffers(
         k_mesh_instance_binding,
-        forward_instance_buffer_->get_buffer().get_vk_buffer(),
+        forward_instance_buffers_[frame_idx_]->get_buffer().get_vk_buffer(),
         instance_offset);
 
     // Bind the pipeline
@@ -326,6 +339,7 @@ void Renderer::draw_forward_instances() {
     // draw final batch
     draw_batch(current_mesh, batch_start,
                forward_instances.instances.size() - batch_start);
+    end_rendering();
 }
 
 } // namespace artemis

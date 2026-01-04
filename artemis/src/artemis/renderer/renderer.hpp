@@ -12,8 +12,18 @@
 #include "artemis/vulkan/swap_chain.hpp"
 #include "artemis/vulkan/vertex_buffer_description.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
+#include "vulkan/vulkan.hpp"
 #include <memory>
 namespace artemis {
+
+struct BeginRenderingInfo {
+    vk::AttachmentLoadOp load_op = vk::AttachmentLoadOp::eClear;
+    vk::AttachmentStoreOp store_op = vk::AttachmentStoreOp::eStore;
+    vk::ImageView image_view = nullptr;
+    vk::ImageLayout image_layout = vk::ImageLayout::eColorAttachmentOptimal;
+    vk::ClearValue clear_color = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+};
+
 class Renderer {
   public:
     Renderer() = default;
@@ -22,6 +32,9 @@ class Renderer {
              uint32_t max_frames_in_flight);
     void begin_frame();
     void end_frame();
+
+    void begin_rendering(const BeginRenderingInfo& info);
+    void end_rendering();
 
     void draw_cube(Transform& transform);
     void submit_instances();
@@ -49,7 +62,7 @@ class Renderer {
     uint32_t max_fif_;
 
     /* Vulkan objects */
-    CommandBuffer* current_cmd_buf_;
+    CommandBuffer* current_cmd_buf_ = nullptr;
     std::vector<std::unique_ptr<CommandBuffer>> command_buffers_;
     std::vector<std::unique_ptr<Semaphore>> render_semaphores_;
     std::vector<std::unique_ptr<Semaphore>> present_semaphores_;
@@ -58,7 +71,7 @@ class Renderer {
 
     /* Forward pipeline */
     std::unique_ptr<Pipeline> forward_pipeline_;
-    std::unique_ptr<VertexBuffer> forward_instance_buffer_;
+    std::vector<std::unique_ptr<VertexBuffer>> forward_instance_buffers_;
 
     /* Resources */
     ResourceHandle<Mesh> cube_mesh_handle_;

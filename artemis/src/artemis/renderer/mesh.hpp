@@ -10,12 +10,10 @@ class Mesh {
     Mesh() = default;
     Mesh(VulkanContext* context_, DeferredQueue* deferred_queue,
          CommandBuffer* cmd_buf, void* vertices, size_t vertices_size,
-         void* indices, size_t index_count, size_t index_size) {
-        vb_ = VertexBuffer(context_, deferred_queue, cmd_buf, vertices,
-                           vertices_size);
-        ib_ = IndexBuffer(context_, deferred_queue, cmd_buf, indices,
-                          index_count, index_size);
-    }
+         void* indices, size_t index_count, size_t index_size)
+        : vb_(context_, deferred_queue, cmd_buf, vertices, vertices_size),
+          ib_(context_, deferred_queue, cmd_buf, indices, index_count,
+              index_size) {}
 
     VertexBuffer& get_vertex_buffer() { return vb_; }
     IndexBuffer& get_index_buffer() { return ib_; }

@@ -11,6 +11,9 @@ class Buffer {
            vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
     ~Buffer();
 
+    Buffer(const Buffer&) = delete;
+    Buffer& operator=(const Buffer&) = delete;
+
     vk::Buffer get_vk_buffer() { return buffer_; }
     vk::DeviceMemory get_vk_buffer_memory() { return buffer_memory_; }
 
@@ -29,7 +32,7 @@ class Buffer {
   private:
     VulkanContext* context_;
     DeferredQueue* deferred_queue_;
-    vk::Buffer buffer_;
+    vk::Buffer buffer_{nullptr};
     vk::DeviceMemory buffer_memory_;
     vk::DeviceSize buffer_size_;
     vk::DeviceSize memory_size_;

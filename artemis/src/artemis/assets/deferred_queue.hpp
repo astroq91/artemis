@@ -19,6 +19,10 @@ class DeferredQueue {
      */
     void flush();
 
+    void update_frame_index() {
+        frame_index_ = (frame_index_ + 1) % num_frames_;
+    }
+
     /**
      * Enqueue an action for a specific frame index.
      * @param func The action.

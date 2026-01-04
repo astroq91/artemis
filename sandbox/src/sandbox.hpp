@@ -21,6 +21,7 @@ class Sandbox : public artemis::ApplicationListener {
   private:
     std::shared_ptr<artemis::utils::Logger> logger_;
     artemis::ApplicationContext* app_context_;
+    artemis::Renderer* renderer_;
 
     std::unique_ptr<artemis::CommandBuffer> command_buffer_;
     std::unique_ptr<artemis::SwapChain> swap_chain_;

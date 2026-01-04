@@ -20,7 +20,6 @@ void DeferredQueue::flush() {
         func();
         queues_[frame_index_].pop();
     }
-    frame_index_ = (frame_index_ + 1) % num_frames_;
 }
 
 void DeferredQueue::enqueue(const std::function<void()>& func, uint32_t index) {
