@@ -3,6 +3,7 @@
 #include "artemis/core/log.hpp"
 #include "artemis/renderer/instancer.hpp"
 #include "artemis/vulkan/pipeline.hpp"
+#include "vulkan/vulkan.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -16,6 +17,8 @@ constexpr uint32_t k_max_forward_instances = 10000;
 struct ForwardPipelineVertex {
     alignas(16) glm::vec3 position;
 };
+
+struct CameraUniform {};
 
 static void framebuffer_resized_callback(GLFWwindow* window, int width,
                                          int height) {
@@ -221,12 +224,28 @@ void Renderer::create_default_meshes() {
 void Renderer::create_resources() {
     swap_chain_ = std::make_unique<SwapChain>(context_, window_);
 
+    camera_set_layout_ = std::make_unique<DescriptorSetLayout>(
+        context_, deferred_queue_,
+        std::vector<vk::DescriptorSetLayoutBinding>{
+            vk::DescriptorSetLayoutBinding(0,
+                                           vk::DescriptorType::eUniformBuffer,
+                                           1, vk::ShaderStageFlagBits::eVertex),
+        });
+
+    camera_set_pool_ = std::make_unique<DescriptorPool>(
+        context_, deferred_queue_,
+        DescriptorPoolCreateInfo{
+            .max_sets = max_fif_,
+            .pool_sizes = {vk::DescriptorPoolSize(
+                vk::DescriptorType::eUniformBuffer, max_fif_)}});
+
     command_buffers_.resize(max_fif_);
     render_semaphores_.resize(swap_chain_->get_image_count());
     present_semaphores_.resize(max_fif_);
     fences_.resize(max_fif_);
     forward_instance_buffers_.resize(max_fif_);
-
+    camera_buffers_.resize(max_fif_);
+    camera_sets_.resize(max_fif_);
     for (size_t i = 0; i < max_fif_; i++) {
         command_buffers_[i] = std::make_unique<CommandBuffer>(context_);
         fences_[i] = std::make_unique<Fence>(
@@ -237,6 +256,16 @@ void Renderer::create_resources() {
         forward_instance_buffers_[i] = std::make_unique<VertexBuffer>(
             context_, deferred_queue_,
             k_max_forward_instances * sizeof(MeshInstance));
+
+        // Create the camera uniform buffers
+        camera_buffers_[i] = std::make_unique<UniformBuffer>(
+            context_, deferred_queue_, sizeof(CameraUniform));
+
+        // Create the camera sets
+        vk::DescriptorSetAllocateInfo cam_set_alloc_info(
+            camera_set_pool_->get_pool(), 1, &camera_set_layout_->get_layout());
+        camera_sets_[i] = std::make_unique<DescriptorSet>(
+            context_, deferred_queue_, cam_set_alloc_info);
     }
     for (size_t i = 0; i < swap_chain_->get_image_count(); i++) {
         render_semaphores_[i] =

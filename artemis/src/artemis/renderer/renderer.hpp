@@ -7,10 +7,14 @@
 #include "artemis/renderer/instancer.hpp"
 #include "artemis/renderer/mesh.hpp"
 #include "artemis/vulkan/command_buffer.hpp"
+#include "artemis/vulkan/descriptor_pool.hpp"
+#include "artemis/vulkan/descriptor_set.hpp"
+#include "artemis/vulkan/descriptor_set_layout.hpp"
 #include "artemis/vulkan/fence.hpp"
 #include "artemis/vulkan/pipeline.hpp"
 #include "artemis/vulkan/semaphore.hpp"
 #include "artemis/vulkan/swap_chain.hpp"
+#include "artemis/vulkan/uniform_buffer.hpp"
 #include "artemis/vulkan/vertex_buffer_description.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
 #include "vulkan/vulkan.hpp"
@@ -80,6 +84,12 @@ class Renderer {
     /* Resources */
     ResourceHandle<Mesh> cube_mesh_handle_;
     VertexBufferDescription forward_pipeline_mesh_desc_;
+
+    /* Camera */
     Camera current_camera_;
+    std::vector<std::unique_ptr<UniformBuffer>> camera_buffers_;
+    std::vector<std::unique_ptr<DescriptorSet>> camera_sets_;
+    std::unique_ptr<DescriptorSetLayout> camera_set_layout_;
+    std::unique_ptr<DescriptorPool> camera_set_pool_;
 };
 } // namespace artemis
