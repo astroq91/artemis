@@ -21,7 +21,7 @@ VSOutput vert_main(VSInput input) {
     input.model3,
   );
 
-  output.pos = mul(model, float4(input.pos, 1.0));
+  output.pos = float4(input.pos, 1.0);
   return output;
 }
 

@@ -3,6 +3,7 @@
 #include "artemis/assets/deferred_queue.hpp"
 #include "artemis/assets/resource_library.hpp"
 #include "artemis/core/transform.hpp"
+#include "artemis/renderer/camera.hpp"
 #include "artemis/renderer/instancer.hpp"
 #include "artemis/renderer/mesh.hpp"
 #include "artemis/vulkan/command_buffer.hpp"
@@ -39,6 +40,8 @@ class Renderer {
     void draw_cube(Transform& transform);
     void submit_instances();
 
+    void set_camera(const Camera& camera) { current_camera_ = camera; }
+
   private:
     void create_default_meshes();
     void create_resources();
@@ -47,13 +50,14 @@ class Renderer {
     void draw_forward_instances();
 
   private:
+    /* Systems */
     VulkanContext* context_;
     DeferredQueue* deferred_queue_;
     Window* window_;
     ResourceLibrary* resource_library_;
-
     Instancer instancer_;
 
+    /* Frame data */
     uint32_t frame_idx_ = 0;
     uint32_t image_idx_ = 0;
     bool frame_buffer_resized_ = false;
@@ -75,7 +79,7 @@ class Renderer {
 
     /* Resources */
     ResourceHandle<Mesh> cube_mesh_handle_;
-
     VertexBufferDescription forward_pipeline_mesh_desc_;
+    Camera current_camera_;
 };
 } // namespace artemis

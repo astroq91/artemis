@@ -59,7 +59,8 @@ Pipeline::Pipeline(VulkanContext* context, DeferredQueue* deferred_queue,
     /* RASTERIZER */
     vk::PipelineRasterizationStateCreateInfo rasterizer(
         {}, vk::False, vk::False, vk::PolygonMode::eFill,
-        vk::CullModeFlagBits::eBack, vk::FrontFace::eClockwise, vk::False);
+        vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise,
+        vk::False);
 
     /* MULTISAMPLING */
     vk::PipelineMultisampleStateCreateInfo multisampling(
@@ -85,8 +86,13 @@ Pipeline::Pipeline(VulkanContext* context, DeferredQueue* deferred_queue,
         &info.swap_chain_image_format;
 
     /* PIPELINE LAYOUT */
-    vk::PipelineLayoutCreateInfo pipeline_layout_info({}, 0, nullptr, 0,
-                                                      nullptr);
+    std::vector<vk::DescriptorSetLayout> set_layouts(info.set_layouts.size());
+
+    for (size_t i = 0; i < set_layouts.size(); i++) {
+        set_layouts[i] = info.set_layouts[i].get_layout();
+    }
+    vk::PipelineLayoutCreateInfo pipeline_layout_info(
+        {}, set_layouts.size(), set_layouts.data(), 0, nullptr);
     layout_ = context->device->createPipelineLayout(pipeline_layout_info);
 
     /* PIPELINE CREATION */

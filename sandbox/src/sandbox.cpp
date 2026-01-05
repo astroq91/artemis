@@ -20,6 +20,7 @@ void Sandbox::on_start(ApplicationContext* context) {
 
 void Sandbox::on_update(float ts) {
     Transform transform;
+    transform.set_position({0.0f, 0.0f, -10.0f});
     renderer_->draw_cube(transform);
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "artemis/assets/deferred_queue.hpp"
+#include "artemis/vulkan/descriptor_set_layout.hpp"
 #include "artemis/vulkan/shader.hpp"
 #include "artemis/vulkan/vulkan_context.hpp"
 #include "artemis/vulkan/vertex_buffer_description.hpp"
@@ -15,6 +16,7 @@ struct PipelineCreateInfo {
     const Shader* fragment_shader;
     vk::Format swap_chain_image_format;
     std::vector<VertexBufferDescription> vertex_buffer_descs;
+    std::vector<DescriptorSetLayout> set_layouts;
 };
 
 class Pipeline {

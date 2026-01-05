@@ -9,6 +9,7 @@ void error_callback(int error, const char* desc) {
 Window::Window() {
     auto logger = Log::get();
     logger->debug("Initializing window.");
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     if (!glfwInit()) {
         logger->critical("glfwInit()");
     }
