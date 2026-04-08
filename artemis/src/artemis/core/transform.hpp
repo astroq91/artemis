@@ -1,4 +1,5 @@
 #pragma once
+#include "artemis/core/log.hpp"
 #include <glm/gtx/quaternion.hpp>
 #include <glm/glm.hpp>
 namespace artemis {
@@ -23,6 +24,7 @@ struct Transform {
                       glm::translate(glm::mat4(1.0f), position_);
             is_dirty_ = false;
         }
+        Log::get()->info("{}", matrix_);
         return matrix_;
     }
 

@@ -22,6 +22,8 @@ void Sandbox::on_update(float ts) {
     Transform transform;
     transform.set_position({0.0f, 0.0f, -10.0f});
     renderer_->draw_cube(transform);
+    transform.set_position({0.1f, 0.0f, -10.0f});
+    renderer_->draw_cube(transform);
 }
 
 void Sandbox::on_window_event(const WindowEvent& event) {
