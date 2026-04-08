@@ -318,6 +318,11 @@ void Renderer::draw_forward_instances() {
     forward_instance_buffers_[frame_idx_]->insert(
         current_cmd_buf_, forward_instances.instances.data(),
         sizeof(MeshInstance) * forward_instances.instances.size());
+    auto log = Log::get();
+    log->info("Models:");
+    for (auto& instance : forward_instances.instances) {
+      log->info("{}", instance.model);
+    }
     auto cmd_buf = current_cmd_buf_->get_vk_command_buffer();
 
     begin_rendering({});
