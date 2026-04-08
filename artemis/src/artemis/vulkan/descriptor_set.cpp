@@ -15,6 +15,19 @@ DescriptorSet::DescriptorSet(VulkanContext* context,
     }
 }
 
+
+void DescriptorSet::update(const WriteDescriptorSet&& info) {
+    device_->updateDescriptorSets(vk::WriteDescriptorSet {
+      set_,
+      info.dst_binding,
+      info.dst_array_element,
+      info.descriptor_count,
+      info.descriptor_type,
+      info.p_image_info,
+      info.p_buffer_info,
+    }, {});
+}
+
 DescriptorSet::~DescriptorSet() {
     if (set_ != nullptr) {
         deferred_queue_->enqueue(

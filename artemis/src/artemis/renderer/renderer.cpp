@@ -285,6 +285,7 @@ void Renderer::create_pipelines() {
             .swap_chain_image_format = swap_chain_->get_image_format(),
             .vertex_buffer_descs = {forward_pipeline_mesh_desc_, // 0
                                     k_mesh_instance_desc},       // 1
+            .set_layouts = { *camera_set_layout_ }
         });
 }
 
