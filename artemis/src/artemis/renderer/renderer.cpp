@@ -339,8 +339,7 @@ void Renderer::draw_forward_instances() {
 
         auto mesh = resource_library_->get_mesh_pool().get(mesh_handle);
 
-        vk::DeviceSize vb_offset = sizeof(MeshInstance) * first_instance;
-
+        vk::DeviceSize vb_offset = 0;
         cmd_buf.bindVertexBuffers(
             0, mesh->get_vertex_buffer().get_buffer().get_vk_buffer(),
             vb_offset);
@@ -349,13 +348,15 @@ void Renderer::draw_forward_instances() {
             vk::IndexType::eUint32);
 
         cmd_buf.drawIndexed(mesh->get_index_buffer().get_index_count(),
-                            static_cast<uint32_t>(instance_count), 0, 0, 0);
+                            static_cast<uint32_t>(instance_count), 0, 0, first_instance);
     };
 
     ResourceHandle<Mesh> current_mesh = forward_instances.order[0].mesh_handle;
 
     size_t batch_start = 0;
 
+    // Iterate through instances until we see a change in mesh handle.
+    // Then draw that specific batch.
     for (size_t i = 1; i < forward_instances.instances.size(); ++i) {
         if (forward_instances.order[i].mesh_handle.index !=
             current_mesh.index) {
