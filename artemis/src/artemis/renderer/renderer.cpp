@@ -279,7 +279,7 @@ void Renderer::create_resources() {
             context_, deferred_queue_, cam_set_alloc_info);
         
         vk::DescriptorBufferInfo cam_desc_buf_info(camera_buffers_[i]->get_buffer().get_vk_buffer(), 0, camera_buffers_[i]->get_buffer().get_size());
-        camera_sets_[frame_idx_]->update({
+        camera_sets_[i]->update({
           .dst_binding = 0,
           .descriptor_count = 1,
           .dst_array_element = 0,

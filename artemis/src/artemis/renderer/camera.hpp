@@ -6,6 +6,11 @@ struct Camera {
     glm::mat4 view;
 
     Camera() = default;
+    Camera(glm::mat4 view_matrix, float fov, float aspect, float near,
+           float far) {
+        view = view_matrix;
+        projection = glm::perspectiveRH_ZO(fov, aspect, near, far);
+    }
     Camera(Transform& transform, float fov, float aspect, float near,
            float far) {
         view = glm::inverse(transform.get_mat4());

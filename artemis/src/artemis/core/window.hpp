@@ -24,7 +24,14 @@ class Window {
      */
     GLFWwindow* get_handle() { return window_; }
 
+    float get_aspect_ratio() {
+      int width, height; 
+      glfwGetWindowSize(window_, &width, &height);
+      return static_cast<float>(width) / static_cast<float>(height);
+  }
+
   private:
     GLFWwindow* window_;
+    
 };
 } // namespace artemis
