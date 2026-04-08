@@ -18,7 +18,9 @@ struct ForwardPipelineVertex {
     alignas(16) glm::vec3 position;
 };
 
-struct CameraUniform {};
+struct CameraUniform {
+  glm::mat4 vp;
+};
 
 static void framebuffer_resized_callback(GLFWwindow* window, int width,
                                          int height) {
@@ -144,6 +146,15 @@ void Renderer::draw_cube(Transform& transform) {
     instancer_.add_forward_instance(cube_mesh_handle_, transform.get_mat4());
 }
 
+void Renderer::set_camera(const Camera& camera) {
+  current_camera_ = camera;
+  CameraUniform data {
+    .vp = camera.projection * camera.view 
+  };
+  camera_buffers_[frame_idx_]->insert(&data, sizeof(data));
+}
+
+
 void Renderer::create_default_meshes() {
     std::vector<ForwardPipelineVertex> cube_vertices = {
         // Front
@@ -266,6 +277,15 @@ void Renderer::create_resources() {
             camera_set_pool_->get_pool(), 1, &camera_set_layout_->get_layout());
         camera_sets_[i] = std::make_unique<DescriptorSet>(
             context_, deferred_queue_, cam_set_alloc_info);
+        
+        vk::DescriptorBufferInfo cam_desc_buf_info(camera_buffers_[i]->get_buffer().get_vk_buffer(), 0, camera_buffers_[i]->get_buffer().get_size());
+        camera_sets_[frame_idx_]->update({
+          .dst_binding = 0,
+          .descriptor_count = 1,
+          .dst_array_element = 0,
+          .descriptor_type = vk::DescriptorType::eUniformBuffer,
+          .p_buffer_info = &cam_desc_buf_info
+        });
     }
     for (size_t i = 0; i < swap_chain_->get_image_count(); i++) {
         render_semaphores_[i] =
@@ -285,7 +305,7 @@ void Renderer::create_pipelines() {
             .swap_chain_image_format = swap_chain_->get_image_format(),
             .vertex_buffer_descs = {forward_pipeline_mesh_desc_, // 0
                                     k_mesh_instance_desc},       // 1
-            .set_layouts = { *camera_set_layout_ }
+            .set_layouts = { camera_set_layout_.get() }
         });
 }
 
@@ -338,6 +358,9 @@ void Renderer::draw_forward_instances() {
     cmd_buf.bindPipeline(vk::PipelineBindPoint::eGraphics,
                          forward_pipeline_->get_vk_pipeline());
 
+    // Bind the camera
+    cmd_buf.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, forward_pipeline_->get_vk_layout(), 0, camera_sets_[frame_idx_]->get_set(), {});
+
     auto draw_batch = [&](ResourceHandle<Mesh> mesh_handle,
                           size_t first_instance, size_t instance_count) {
         if (instance_count == 0)
@@ -357,7 +380,7 @@ void Renderer::draw_forward_instances() {
                             static_cast<uint32_t>(instance_count), 0, 0, first_instance);
     };
 
-    ResourceHandle<Mesh> current_mesh = forward_instances.order[0].mesh_handle;
+   ResourceHandle<Mesh> current_mesh = forward_instances.order[0].mesh_handle;
 
     size_t batch_start = 0;
 

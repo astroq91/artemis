@@ -44,7 +44,7 @@ class Renderer {
     void draw_cube(Transform& transform);
     void submit_instances();
 
-    void set_camera(const Camera& camera) { current_camera_ = camera; }
+    void set_camera(const Camera& camera);
 
   private:
     void create_default_meshes();

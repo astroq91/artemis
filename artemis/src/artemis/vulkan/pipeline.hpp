@@ -16,7 +16,7 @@ struct PipelineCreateInfo {
     const Shader* fragment_shader;
     vk::Format swap_chain_image_format;
     std::vector<VertexBufferDescription> vertex_buffer_descs;
-    std::vector<DescriptorSetLayout> set_layouts;
+    std::vector<DescriptorSetLayout*> set_layouts;
 };
 
 class Pipeline {
@@ -31,6 +31,7 @@ class Pipeline {
     Pipeline& operator=(const Pipeline&) = delete;
 
     const vk::Pipeline& get_vk_pipeline() const { return pipeline_; }
+    const vk::PipelineLayout& get_vk_layout() const { return layout_; }
 
   private:
     vk::Pipeline pipeline_{nullptr};

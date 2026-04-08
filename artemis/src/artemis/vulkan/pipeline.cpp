@@ -89,7 +89,7 @@ Pipeline::Pipeline(VulkanContext* context, DeferredQueue* deferred_queue,
     std::vector<vk::DescriptorSetLayout> set_layouts(info.set_layouts.size());
 
     for (size_t i = 0; i < set_layouts.size(); i++) {
-        set_layouts[i] = info.set_layouts[i].get_layout();
+        set_layouts[i] = info.set_layouts[i]->get_layout();
     }
     vk::PipelineLayoutCreateInfo pipeline_layout_info(
         {}, set_layouts.size(), set_layouts.data(), 0, nullptr);

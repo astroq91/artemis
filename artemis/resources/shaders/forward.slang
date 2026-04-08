@@ -10,6 +10,12 @@ struct VSOutput {
   float4 pos : SV_Position;
 };
 
+struct CameraBuffer {
+  float4x4 vp;
+};
+
+ConstantBuffer<CameraBuffer> cb;
+
 [shader("vertex")]
 VSOutput vert_main(VSInput input) {
   VSOutput output;
@@ -21,7 +27,7 @@ VSOutput vert_main(VSInput input) {
     input.model3,
   );
 
-  output.pos = mul(model, float4(input.pos, 1.0));
+  output.pos = mul(cb.vp, mul(model, float4(input.pos, 1.0)));
   return output;
 }
 

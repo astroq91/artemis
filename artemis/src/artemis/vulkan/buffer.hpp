@@ -17,6 +17,8 @@ class Buffer {
     vk::Buffer get_vk_buffer() { return buffer_; }
     vk::DeviceMemory get_vk_buffer_memory() { return buffer_memory_; }
 
+    size_t get_size() const { return buffer_size_; }
+
     void* map() {
         return context_->device->mapMemory(buffer_memory_, 0, memory_size_);
     }

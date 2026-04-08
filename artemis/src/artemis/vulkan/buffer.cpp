@@ -1,4 +1,3 @@
-#pragma once
 #include "buffer.hpp"
 #include "artemis/assets/deferred_queue.hpp"
 #include "artemis/core/log.hpp"
