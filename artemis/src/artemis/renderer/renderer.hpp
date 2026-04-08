@@ -87,9 +87,12 @@ class Renderer {
 
     /* Camera */
     Camera current_camera_;
+
+    // Note: Remember to declare the pool *before* the descriptor sets,
+    //       to ensure it is destroyed after they are.
+    std::unique_ptr<DescriptorPool> camera_set_pool_;
     std::vector<std::unique_ptr<UniformBuffer>> camera_buffers_;
     std::vector<std::unique_ptr<DescriptorSet>> camera_sets_;
     std::unique_ptr<DescriptorSetLayout> camera_set_layout_;
-    std::unique_ptr<DescriptorPool> camera_set_pool_;
 };
 } // namespace artemis

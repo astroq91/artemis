@@ -9,7 +9,7 @@ DescriptorPool::DescriptorPool(VulkanContext* context,
     : device_(context->device.get()), deferred_queue_(deferred_queue) {
 
     vk::DescriptorPoolCreateInfo create_info(
-        {}, info.max_sets, info.pool_sizes.size(), info.pool_sizes.data());
+    vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, info.max_sets, info.pool_sizes.size(), info.pool_sizes.data());
     if (context->device->createDescriptorPool(&create_info, nullptr, &pool_) !=
         vk::Result::eSuccess) {
         Log::get()->error("(vk) Failed to allocate descriptor pool.");
