@@ -24,7 +24,6 @@ struct Transform {
                       glm::translate(glm::mat4(1.0f), position_);
             is_dirty_ = false;
         }
-        Log::get()->info("{}", matrix_);
         return matrix_;
     }
 
