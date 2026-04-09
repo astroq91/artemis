@@ -151,7 +151,18 @@ void Renderer::set_camera(const Camera& camera) {
   CameraUniform data {
     .vp = camera.projection * camera.view 
   };
-  camera_buffers_[frame_idx_]->insert(&data, sizeof(data));
+  for (uint32_t i = 0; i < max_fif_; i++) {
+    if (i == frame_idx_) {
+      // Update for this frame
+      camera_buffers_[i]->insert(&data, sizeof(data));
+    } else {
+      // For all other frames, update when the resource is no longer in use 
+      deferred_queue_->enqueue([&, i, data]() {
+        CameraUniform _data = data;
+        camera_buffers_[i]->insert(&_data, sizeof(_data));
+      }, i);
+    }
+  }
 }
 
 
