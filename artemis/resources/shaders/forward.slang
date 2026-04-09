@@ -20,12 +20,17 @@ ConstantBuffer<CameraBuffer> cb;
 VSOutput vert_main(VSInput input) {
   VSOutput output;
 
-  float4x4 model = float4x4(
+  // Lazy fix:
+  // The model matrices are currently sent as raw bytes,
+  // which means (by the virtue of GLM) model0, model1, ...,
+  // are columns and hence need to be transposed.
+  // Fix this in the future!
+  float4x4 model = transpose(float4x4(
     input.model0,
     input.model1,
     input.model2,
     input.model3,
-  );
+  ));
 
   output.pos = mul(cb.vp, mul(model, float4(input.pos, 1.0)));
   return output;
